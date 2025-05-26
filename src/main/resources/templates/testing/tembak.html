@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Tembak Bro</title>
+    <style>
+        label {
+            color: yellow;
+            font-family: Algerian;
+        }
+
+        body {
+            background-color: red;
+        }
+    </style>
+</head>
+<body>
+
+<p th:text="${cobaText}"></p>
+<a th:href="${linkServer}">forward</a>
+<div>
+    <th:block th:each="data :${x}">
+        <div>
+            <label th:text="${data}"></label>
+        </div>
+    </th:block>
+</div>
+</body>
+</html>
