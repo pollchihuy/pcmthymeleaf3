@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.6.2/css/bootstrap.min.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/error.css}" type="text/css"/>
+    <title>REGISTRASI</title>
+</head>
+<body>
+<section class="h-100 h-custom" style="background-color: #8fc4b7;">
+    <div class="container py-5 h-100">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-lg-8 col-xl-6">
+                <div class="card rounded-3">
+                    <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-registration/img3.webp"
+                         class="w-100" style="border-top-left-radius: .3rem; border-top-right-radius: .3rem;"
+                         alt="Sample photo">
+                    <div class="card-body p-4 p-md-5">
+                        <h3 class="mb-4 pb-2 pb-md-0 mb-md-5 px-md-2">Registration Info</h3>
+
+                        <form class="px-md-2" th:object="${usr}" th:action="@{/auth/regis}" method="post">
+
+                            <!-- Username input -->
+                            <div data-mdb-input-init class="form-outline mb-4">
+                                <label class="form-label" for="username">Username</label>
+                                <input type="text" id="username" class="form-control form-control-lg"
+                                       th:field="*{username}"
+                                       placeholder="Enter Username" />
+                                <ul class="error-ul">
+                                    <li th:each="err : ${#fields.errors('username')}" th:text="${err}" class="error" />
+                                </ul>
+                            </div>
+
+                            <!-- Username input -->
+                            <div data-mdb-input-init class="form-outline mb-4">
+                                <label class="form-label" for="noHp">No Handphone</label>
+                                <input type="text" id="noHp" class="form-control form-control-lg"
+                                       th:field="*{noHp}"
+                                       placeholder="Enter No Hp" />
+                                <ul class="error-ul">
+                                    <li th:each="err : ${#fields.errors('noHp')}" th:text="${err}" class="error" />
+                                </ul>
+                            </div>
+
+                            <!-- Email input -->
+                            <div data-mdb-input-init class="form-outline mb-4">
+                                <label class="form-label" for="email">Email</label>
+                                <input type="email" id="email" class="form-control form-control-lg"
+                                       th:field="*{email}"
+                                       placeholder="Enter Email" />
+                                <ul class="error-ul">
+                                    <li th:each="err : ${#fields.errors('email')}" th:text="${err}" class="error" />
+                                </ul>
+                            </div>
+
+                            <!-- Password input -->
+                            <div data-mdb-input-init class="form-outline mb-3">
+                                <label class="form-label" for="password">Password</label>
+                                <input type="password" id="password"
+                                       th:field="*{password}"
+                                       class="form-control form-control-lg"
+                                       placeholder="Enter password" />
+                                <p id="errorPwd" class="error"/>
+                                <ul class="error-ul">
+                                    <li th:each="err : ${#fields.errors('password')}" th:text="${err}" class="error" />
+                                </ul>
+                            </div>
+
+                            <!-- Nama Lengkap input -->
+                            <div data-mdb-input-init class="form-outline mb-4">
+                                <label class="form-label" for="namaLengkap">Nama Lengkap</label>
+                                <input type="text" id="namaLengkap" class="form-control form-control-lg"
+                                       th:field="*{namaLengkap}"
+                                       placeholder="Enter Full Name" />
+                                <ul class="error-ul">
+                                    <li th:each="err : ${#fields.errors('namaLengkap')}" th:text="${err}" class="error" />
+                                </ul>
+                            </div>
+
+                            <!-- Nama Lengkap input -->
+                            <div data-mdb-input-init class="form-outline mb-4">
+                                <label class="form-label" for="alamat">Alamat</label>
+                                <textarea type="text" id="alamat" class="form-control form-control-lg"
+                                       th:field="*{alamat}"
+                                       placeholder="Enter Address" />
+                                <ul class="error-ul">
+                                    <li th:each="err : ${#fields.errors('alamat')}" th:text="${err}" class="error" />
+                                </ul>
+                            </div>
+
+                            <!-- Nama Lengkap input -->
+                            <div data-mdb-input-init class="form-outline mb-4">
+                                <label class="form-label" for="tanggalLahir">Alamat</label>
+                                <input type="date" id="tanggalLahir" class="form-control form-control-lg"
+                                          th:field="*{tanggalLahir}"
+                                          placeholder="Enter Birth Date" />
+                                <ul class="error-ul">
+                                    <li th:each="err : ${#fields.errors('tanggalLahir')}" th:text="${err}" class="error" />
+                                </ul>
+                            </div>
+
+                            <button type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-success btn-lg mb-1">Submit</button>
+
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+</body>
+</html>

@@ -13,8 +13,6 @@ public class LoginDTO {
     @NotEmpty(message = "Username Tidak Boleh Kosong")
     private String username;
 
-//    @Pattern(regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[@_#\\-$])[\\w].{8,15}$",
-//            message = "Format Password Tidak Valid")
     private String password;
 
     private String captcha;
