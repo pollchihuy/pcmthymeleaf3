@@ -8,6 +8,7 @@ import com.juaracoding.pcmthymeleaf3.dto.validation.VerifyRegisDTO;
 import com.juaracoding.pcmthymeleaf3.httpclient.AuthService;
 import com.juaracoding.pcmthymeleaf3.httpclient.RefreshTokenService;
 import com.juaracoding.pcmthymeleaf3.security.BcryptImpl;
+import com.juaracoding.pcmthymeleaf3.utils.GenerateStringMenu;
 import com.juaracoding.pcmthymeleaf3.utils.GlobalFunction;
 import jakarta.validation.Valid;
 import org.bouncycastle.util.encoders.Base64;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -131,7 +133,9 @@ public class AuthController {
             Map<String,Object> map = (Map<String, Object>) response.getBody();
             Map<String,Object> mapData = (Map<String, Object>) map.get("data");
             tokenJwt = (String) mapData.get("token");
-
+            List<Map<String,Object>> listMenu = (List<Map<String, Object>>) mapData.get("menu");
+            menuNavBar = new GenerateStringMenu().stringMenu(listMenu);
+//            System.out.println("Menu Nav Bar  : " + menuNavBar);
         }catch (Exception e){
             System.out.println("Error : "+e.getMessage());
             GlobalFunction.getCaptchaLogin(loginDTO);
@@ -141,8 +145,10 @@ public class AuthController {
         webRequest.setAttribute("JWT",tokenJwt,1);
         webRequest.setAttribute("USR_NAME",loginDTO.getUsername(),1);
         webRequest.setAttribute("PASSWORD",loginDTO.getPassword(),1);
+        webRequest.setAttribute("MENU_NAVBAR",menuNavBar,1);
 
         model.addAttribute("USR_NAME",loginDTO);
+        model.addAttribute("MENU_NAVBAR",menuNavBar);
         return "auth/home";
     }
 

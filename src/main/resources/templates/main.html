@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${PAGE_NAME}">Akses</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/table.css}" type="text/css"/>
+</head>
+<body>
+<div th:replace="~{fragment/navbar::navheader}"></div>
+<h1 style="background-color: red" th:text="${PAGE_NAME}"/>
+<div th:replace="~{fragment/table::main-table}"></div>
+
+</body>
+</html>

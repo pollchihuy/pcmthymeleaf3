@@ -3,10 +3,13 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.6.2/css/bootstrap.min.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/style.css}" type="text/css"/>
+
     <title>HOME</title>
 </head>
 <body>
-    <h1>INI ADALAH HOME !!</h1>
+<div th:replace="~{fragment/navbar::navheader}"></div>
+<h1 style="background-color: red">HOME</h1>
 
 <a th:href="@{/auth/coba}">COBA</a>
 </body>
