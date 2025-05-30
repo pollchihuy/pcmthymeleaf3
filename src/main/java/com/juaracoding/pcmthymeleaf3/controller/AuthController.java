@@ -101,7 +101,6 @@ public class AuthController {
 
         String strAnswer = loginDTO.getHiddenCaptcha();
         String decodePassword = new String(Base64.decode(loginDTO.getPassword()));
-        System.out.println("Password Decoded: " + decodePassword);
         GlobalFunction.matchingPattern(decodePassword,"^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[@_#\\-$])[\\w].{8,15}$",
                 "password","Format Password Tidak Valid","usr",result);
 

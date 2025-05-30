@@ -87,11 +87,11 @@ public class GlobalFunction {
         model.addAttribute("columnName",mapData.get("column-name"));
         model.addAttribute("value",mapData.get("value"));
         model.addAttribute("sizePerPage",mapData.get("size-per-page"));
-        model.addAttribute("totalPage",mapData.get("total-page"));
-        model.addAttribute("totalData",mapData.get("total-mapData"));
-        model.addAttribute("pathServer","group-menu");//REQUEST MAPPING
-//            model.addAttribute("SIZE_COMPONENT",ConstantValue.SIZE_COMPONENT);
-            model.addAttribute("filterColumn",filterColumn);
+        model.addAttribute("totalPage",mapData.get("total-pages"));
+        model.addAttribute("totalData",mapData.get("total-data"));
+        model.addAttribute("pathServer",pathServer);//REQUEST MAPPING
+        model.addAttribute("SIZE_COMPONENT",ConstantValue.SIZE_COMPONENT);
+        model.addAttribute("filterColumn",filterColumn);
     }
 
     public static void setGlobalAttribute(Model model,WebRequest request,String pageName){
