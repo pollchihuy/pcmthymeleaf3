@@ -228,6 +228,8 @@ public class GroupMenuController {
             return "/group-menu/edit";
         }
         model.addAttribute("data",new ObjectMapper().convertValue(mapData,ResGroupMenuDTO.class));
+        model.addAttribute("id",mapData.get("id"));
+
         return "/group-menu/edit";
     }
 
@@ -240,8 +242,8 @@ public class GroupMenuController {
             WebRequest request){
 
         if(bindingResult.hasErrors()){
-            valGroupMenuDTO.setId(id);
             model.addAttribute("data",valGroupMenuDTO);
+            model.addAttribute("id",id);
             return "/group-menu/edit";
         }
 
@@ -250,12 +252,11 @@ public class GroupMenuController {
         if(jwt.equals("redirect:/774$_3")){
             return jwt;
         }
-
         try{
             response = groupMenuService.update(jwt,valGroupMenuDTO,id);
         }catch (Exception e){
             System.out.println("error : "+e.getMessage());
-            valGroupMenuDTO.setId(id);
+            model.addAttribute("id",id);
             model.addAttribute("data",valGroupMenuDTO);
             return "/group-menu/edit";
         }

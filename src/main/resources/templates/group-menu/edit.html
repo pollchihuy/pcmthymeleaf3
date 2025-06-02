@@ -1,4 +1,4 @@
-<form  th:action="@{/group-menu/{id} (id=${data.id})}"
+<form  th:action="@{/group-menu/{id} (id=${id})}"
 	   th:object = "${data}" method="POST" id="editGroupMenu">
 	<input type="hidden" value="50c9a8c2b1cb45799d8f0db5f8449c65" /><!-- id form -->
 	<div th:if="${#fields.hasErrors('global')}" class="error-box error-danger" >
