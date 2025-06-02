@@ -1,18 +1,16 @@
 package com.juaracoding.pcmthymeleaf3.controller;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.juaracoding.pcmthymeleaf3.dto.response.ResGroupMenuDTO;
-import com.juaracoding.pcmthymeleaf3.dto.validation.LoginDTO;
 import com.juaracoding.pcmthymeleaf3.dto.validation.ValGroupMenuDTO;
 import com.juaracoding.pcmthymeleaf3.httpclient.GroupMenuService;
 import com.juaracoding.pcmthymeleaf3.utils.GlobalFunction;
 import feign.Response;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -56,6 +54,32 @@ public class GroupMenuController {
         }catch (Exception e){
             return "redirect:/3314&5";
         }
+        return "/main";
+    }
+
+    @GetMapping("/err/{err}")
+    public String defaultPageError(Model model,
+                                   @PathVariable String err,
+                                   WebRequest request){
+
+        ResponseEntity<Object> response = null;
+        String jwt = GlobalFunction.tokenCheck(model, request);
+        if(jwt.equals("redirect:/774$_3")){
+            return jwt;
+        }
+        try{
+            response = groupMenuService.findAll(jwt);
+            Map<String,Object> map = (Map<String, Object>) response.getBody();
+            Map<String,Object> mapData = (Map<String, Object>) map.get("data");
+            GlobalFunction.setPagingElement(model,mapData,"group-menu",filterColumn);
+            GlobalFunction.setGlobalAttribute(model,request,"GROUP MENU");
+        }catch (Exception e){
+            return "redirect:/3314&5";
+        }
+        if(err.equals("500")){
+            err = "Internal Server Error (500)";
+        }
+        model.addAttribute("errorInternalServer",err);
         return "/main";
     }
 
@@ -181,5 +205,117 @@ public class GroupMenuController {
             return "/group-menu/add";
         }
         return "form-success";
+    }
+
+    @GetMapping("/e/{id}")
+    public String openModalsEdit(
+            Model model,
+            @PathVariable Long id,
+            WebRequest request){
+        ResponseEntity<Object> response = null;
+        String jwt = GlobalFunction.tokenCheck(model, request);
+        Map<String,Object> map = null;
+        Map<String,Object> mapData = null;
+        if(jwt.equals("redirect:/774$_3")){
+            return jwt;
+        }
+        try{
+            response = groupMenuService.findById(jwt,id);
+            map = (Map<String, Object>) response.getBody();
+            mapData = (Map<String, Object>) map.get("data");
+
+        }catch (Exception e){
+            return "/group-menu/edit";
+        }
+        model.addAttribute("data",new ObjectMapper().convertValue(mapData,ResGroupMenuDTO.class));
+        return "/group-menu/edit";
+    }
+
+    @PostMapping("/{id}")
+    public String update(
+            @ModelAttribute("data") @Valid ValGroupMenuDTO valGroupMenuDTO,
+            BindingResult bindingResult,
+            Model model,
+            @PathVariable Long id,
+            WebRequest request){
+
+        if(bindingResult.hasErrors()){
+            valGroupMenuDTO.setId(id);
+            model.addAttribute("data",valGroupMenuDTO);
+            return "/group-menu/edit";
+        }
+
+        ResponseEntity<Object> response = null;
+        String jwt = GlobalFunction.tokenCheck(model, request);
+        if(jwt.equals("redirect:/774$_3")){
+            return jwt;
+        }
+
+        try{
+            response = groupMenuService.update(jwt,valGroupMenuDTO,id);
+        }catch (Exception e){
+            System.out.println("error : "+e.getMessage());
+            valGroupMenuDTO.setId(id);
+            model.addAttribute("data",valGroupMenuDTO);
+            return "/group-menu/edit";
+        }
+        return "form-success";
+    }
+
+    @PostMapping("/d/{id}")
+    public String delete(
+            Model model,
+            @PathVariable Long id,
+            WebRequest request){
+
+        ResponseEntity<Object> response = null;
+        String jwt = GlobalFunction.tokenCheck(model, request);
+        if(jwt.equals("redirect:/774$_3")){
+            return jwt;
+        }
+
+        try{
+//            int z = 1/0;
+            response = groupMenuService.delete(jwt,id);
+        }catch (Exception e){
+            return "/form-error";
+        }
+        return "/form-success";
+    }
+
+    @GetMapping("/{idComp}/{descComp}/{sort}/{sortBy}/{page}")
+    public String dataTable(Model model,
+                            @PathVariable(value = "sort") String sort,
+                            @PathVariable(value = "sortBy") String sortBy,//name
+                            @PathVariable(value = "page") Integer page,
+                            @RequestParam(value = "size") Integer size,
+                            @RequestParam(value = "column") String column,
+                            @RequestParam(value = "value") String value,
+                            @PathVariable(value = "idComp") String idComp,
+                            @PathVariable(value = "descComp") String descComp,
+                            WebRequest request){
+        ResponseEntity<Object> response = null;
+        page = page!=0?(page-1):page;
+        String jwt = GlobalFunction.tokenCheck(model, request);
+        if(jwt.equals("redirect:/774$_3")){
+            return jwt;
+        }
+        Map<String,Object> map = null;
+        Map<String,Object> mapData = null;
+        try{
+            response = groupMenuService.findByParam(jwt,sort,sortBy,page,size,column,value);
+            map = (Map<String, Object>) response.getBody();
+            mapData = (Map<String, Object>) map.get("data");
+        }catch (Exception e){
+            model.addAttribute("idComp", idComp);
+            model.addAttribute("descComp",descComp);
+            return "/global/data-table-form";
+        }
+
+        GlobalFunction.setPagingElement(model,mapData,"group-menu",filterColumn);
+        GlobalFunction.setGlobalAttribute(model,request,"GROUP MENU");
+        model.addAttribute("idComp", idComp);
+        model.addAttribute("descComp",descComp);
+        return "/global/data-table-form";
     }
 }

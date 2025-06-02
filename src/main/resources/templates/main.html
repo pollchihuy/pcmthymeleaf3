@@ -17,7 +17,11 @@
 <div th:replace="~{fragment/pagination::paging}"></div>
 
 <th:block th:replace="~{fragment/modals-add::modalsAdd('add1')}">modalAdd</th:block>
-
+<th:block th:replace="~{fragment/modals-edit::modalzEdit('edit1')}">modalEdit</th:block>
+<th:block th:replace="~{fragment/data-table/modals-data-table::modalsTable('dataTable')}">modalEdit</th:block>
+<div th:if="${errorInternalServer != null}" class="error-box error-danger" >
+    <p style="text-align: center;color: green;font-weight: bolder;font-size: 2.5rem" th:utext="${errorInternalServer}" />
+</div>
 
 <script type="text/javascript" th:src="@{/webjars/popper.js/umd/popper.min.js}"></script><!--wajib ada untuk modals-->
 <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>

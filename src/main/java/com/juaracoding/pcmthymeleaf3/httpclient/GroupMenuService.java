@@ -36,5 +36,21 @@ public interface GroupMenuService {
                             @RequestParam String value);
 
     @PostMapping
-    public ResponseEntity<Object> save(@RequestHeader("Authorization") String token,@Valid @RequestBody ValGroupMenuDTO valGroupMenuDTO);
+    public ResponseEntity<Object> save(@RequestHeader("Authorization") String token,@RequestBody ValGroupMenuDTO valGroupMenuDTO);
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Object> findById(
+            @RequestHeader("Authorization") String token,
+            @PathVariable Long id);
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> update( @RequestHeader("Authorization") String token,
+                                          @RequestBody ValGroupMenuDTO valGroupMenuDTO,
+                                          @PathVariable Long id);
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> delete(
+                                        @RequestHeader("Authorization") String token,
+                                        @PathVariable Long id);
+
 }

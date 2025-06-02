@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Pattern;
 
 public class ValMenuDTO {
 
+    private Long id;
+
     @NotNull(message = "Deskripsi Tidak Boleh Null")
     @Pattern(regexp = "^[a-zA-Z\\s]{5,50}$",message = "Nama Tidak Valid hanya Alfabet dan spasi Min 5 Max 50 , ex : User Management")
     private String nama;
@@ -23,6 +25,14 @@ public class ValMenuDTO {
     @NotNull(message = "Relasi Tidak Boleh Kosong")
     @JsonProperty("group-menu")
     private RelGroupMenuDTO groupMenu;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getNama() {
         return nama;
