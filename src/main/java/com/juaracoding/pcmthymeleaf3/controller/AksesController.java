@@ -228,51 +228,28 @@ public class AksesController {
             Model model,
             @PathVariable Long id,
             WebRequest request){
-        ResponseEntity<Object> response = null;
+
         String jwt = GlobalFunction.tokenCheck(model, request);
-        Map<String,Object> map = null;
-        Map<String,Object> mapData = null;
-        List<Map<String,Object>> listAksesMenu = null;
-        List<Map<String,Object>> listMenu = null;
-
-        List<SelectMenuDTO> listAllMenu = null;
-        Set<Long> menuSelected = null;
-        List<SelectMenuDTO> selectedMenuDTO = new ArrayList<>();
-
         if(jwt.equals("redirect:/774$_3")){
             return jwt;
         }
+        Map<String,Object> mapProcessing = new HashMap<>();
         try{
-            response = aksesService.findById(jwt,id);
-            listMenu = getListMenu(menuService,jwt);
-            map = (Map<String, Object>) response.getBody();
-            mapData = (Map<String, Object>) map.get("data");
-            listAksesMenu = (List<Map<String, Object>>) mapData.get("list-menu");
-
-            listAllMenu = getAllMenu(listMenu);
-            for (SelectMenuDTO menu : listAllMenu) {
-                for(Map<String,Object> m:listAksesMenu){
-                    Long idMenu = menu.getId();
-                    Long idAksesMenu =Long.parseLong(m.get("id").toString());
-                    if(idMenu==idAksesMenu){
-                        selectedMenuDTO.add(menu);
-                        break;
-                    }
-                }
-            }
-           menuSelected = selectedMenuDTO.stream().map(SelectMenuDTO::getId).collect(Collectors.toSet());
-
+            mapProcessing = getDataEdit(menuService,aksesService,jwt,id);
         }catch (Exception e){
-            model.addAttribute("id",mapData.get("id"));
+            model.addAttribute("id",id);
             return "/akses/edit";
         }
-        model.addAttribute("data",new ObjectMapper().convertValue(mapData,ResAksesDTO.class));
-        model.addAttribute("id",mapData.get("id"));
-        model.addAttribute("menuSelected", menuSelected);
-        model.addAttribute("listMenu", listAllMenu);
+
+        model.addAttribute("data",mapProcessing.get("data"));
+        model.addAttribute("id",id);
+        model.addAttribute("menuSelected", mapProcessing.get("menuSelected"));
+        model.addAttribute("listMenu", mapProcessing.get("listAllMenu"));
 
         return "/akses/edit";
     }
+
+
 
     @PostMapping("/{id}")
     public String update(
@@ -282,11 +259,6 @@ public class AksesController {
             @PathVariable Long id,
             WebRequest request){
 
-        if(bindingResult.hasErrors()){
-            model.addAttribute("data",selectAksesDTO);
-            model.addAttribute("id",id);
-            return "/akses/edit";
-        }
 
         ResponseEntity<Object> response = null;
         String jwt = GlobalFunction.tokenCheck(model, request);
@@ -294,11 +266,23 @@ public class AksesController {
             return jwt;
         }
 
-        try{
-//            response = aksesService.update(jwt,selectAksesDTO,id);
-        }catch (Exception e){
+        if(bindingResult.hasErrors()){
+            Map<String,Object> mapProcessing = getDataEdit(menuService,aksesService,jwt,id);
             model.addAttribute("data",selectAksesDTO);
             model.addAttribute("id",id);
+            model.addAttribute("menuSelected", mapProcessing.get("menuSelected"));
+            model.addAttribute("listMenu", mapProcessing.get("listAllMenu"));
+            return "/akses/edit";
+        }
+
+        try{
+            response = aksesService.update(jwt,mapToValAksesDTO(selectAksesDTO),id);
+        }catch (Exception e){
+            Map<String,Object> mapProcessing = getDataEdit(menuService,aksesService,jwt,id);
+            model.addAttribute("data",selectAksesDTO);
+            model.addAttribute("id",id);
+            model.addAttribute("menuSelected", mapProcessing.get("menuSelected"));
+            model.addAttribute("listMenu", mapProcessing.get("listAllMenu"));
             return "/akses/edit";
         }
         return "form-success";
@@ -357,5 +341,78 @@ public class AksesController {
             selectMenuDTOS.add(selectMenuDTO);
         }
         return selectMenuDTOS;
+    }
+
+    /** seluruh processing mapping data pada saat proses Edit untuk relasi many to many ada di function ini */
+    private Map<String,Object> getDataEdit(MenuService menuService,AksesService aksesService,String jwt,Long id){
+        ResponseEntity<Object> response = null;
+        Map<String,Object> map = null;
+        Map<String,Object> mapData = null;
+        List<Map<String,Object>> listAksesMenu = null;
+        List<Map<String,Object>> listMenu = null;
+
+        List<SelectMenuDTO> listAllMenu = null;
+        Set<Long> menuSelected = null;
+        List<SelectMenuDTO> selectedMenuDTO = new ArrayList<>();
+        response = aksesService.findById(jwt,id);
+        listMenu = getListMenu(menuService,jwt);
+        map = (Map<String, Object>) response.getBody();
+        mapData = (Map<String, Object>) map.get("data");
+        listAksesMenu = (List<Map<String, Object>>) mapData.get("list-menu");
+
+        listAllMenu = getAllMenu(listMenu);
+        for (SelectMenuDTO menu : listAllMenu) {
+            for(Map<String,Object> m:listAksesMenu){
+                Long idMenu = menu.getId();
+                Long idAksesMenu =Long.parseLong(m.get("id").toString());
+                if(idMenu==idAksesMenu){
+                    selectedMenuDTO.add(menu);
+                    break;
+                }
+            }
+        }
+        menuSelected = selectedMenuDTO.stream().map(SelectMenuDTO::getId).collect(Collectors.toSet());
+        Map<String, Object> mapReturn = new HashMap<>();
+        mapReturn.put("menuSelected",menuSelected);
+        mapReturn.put("data",new ObjectMapper().convertValue(mapData,ResAksesDTO.class));
+        mapReturn.put("listAllMenu",listAllMenu);
+
+        return mapReturn;
+    }
+
+    @GetMapping("/{idComp}/{descComp}/{sort}/{sortBy}/{page}")
+    public String dataTable(Model model,
+                            @PathVariable(value = "sort") String sort,
+                            @PathVariable(value = "sortBy") String sortBy,//name
+                            @PathVariable(value = "page") Integer page,
+                            @RequestParam(value = "size") Integer size,
+                            @RequestParam(value = "column") String column,
+                            @RequestParam(value = "value") String value,
+                            @PathVariable(value = "idComp") String idComp,
+                            @PathVariable(value = "descComp") String descComp,
+                            WebRequest request){
+        ResponseEntity<Object> response = null;
+        page = page!=0?(page-1):page;
+        String jwt = GlobalFunction.tokenCheck(model, request);
+        if(jwt.equals("redirect:/774$_3")){
+            return jwt;
+        }
+        Map<String,Object> map = null;
+        Map<String,Object> mapData = null;
+        try{
+            response = aksesService.findByParam(jwt,sort,sortBy,page,0,size,column,value);
+            map = (Map<String, Object>) response.getBody();
+            mapData = (Map<String, Object>) map.get("data");
+        }catch (Exception e){
+            model.addAttribute("idComp", idComp);
+            model.addAttribute("descComp",descComp);
+            return "/global/data-table-form";
+        }
+
+        GlobalFunction.setPagingElement(model,mapData,"akses",filterColumn);
+        GlobalFunction.setGlobalAttribute(model,request,"AKSES");
+        model.addAttribute("idComp", idComp);
+        model.addAttribute("descComp",descComp);
+        return "/global/data-table-form";
     }
 }

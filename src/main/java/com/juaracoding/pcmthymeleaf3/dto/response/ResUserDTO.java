@@ -2,7 +2,12 @@ package com.juaracoding.pcmthymeleaf3.dto.response;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.juaracoding.pcmthymeleaf3.dto.rel.RelAksesDTO;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 
@@ -24,9 +29,21 @@ public class ResUserDTO {
 
     private String alamat;
 
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = LocalDateDeserializer.class)
+    @JsonSerialize(using = LocalDateSerializer.class)
+    @JsonProperty("tanggal-lahir")
     private LocalDate tanggalLahir;
 
     private RelAksesDTO akses;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public RelAksesDTO getAkses() {
         return akses;

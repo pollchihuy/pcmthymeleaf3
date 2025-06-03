@@ -1,9 +1,9 @@
-<form  th:action="@{/akses/e/{id} (id=${id})}"
+<form  th:action="@{/akses/{id} (id=${id})}"
 	   th:object = "${data}" method="POST" id="editAkses">
 	<input type="hidden" value="50c9a8c2b1cb45799d8f0db5f8449c65" /><!-- id form -->
-<!--	<div th:if="${#fields.hasErrors('global')}" class="error-box error-danger" >-->
-<!--		<p th:each="err : ${#fields.errors('global')}" th:text="${err}"  class="error"/>-->
-<!--	</div>-->
+	<div th:if="${#fields.hasErrors('global')}" class="error-box error-danger" >
+		<p th:each="err : ${#fields.errors('global')}" th:text="${err}"  class="error"/>
+	</div>
 	<div class ="form-group">
 		<label> Nama Akses </label>
 		<input

@@ -1,0 +1,152 @@
+<form  th:action="@{/user}"
+	   th:object = "${data}" method="POST" id="addUser">
+	<input type="hidden" value="50c9a8c2b1cb45799d8f0db5f8449c65" /><!-- id form -->
+	<div th:if="${#fields.hasErrors('global')}" class="error-box error-danger" >
+		<p th:each="err : ${#fields.errors('global')}" th:text="${err}"  class="error"/>
+	</div>
+
+	<div class ="form-group">
+		<label  for="username"> Username </label>
+		<input
+				id="username"
+				type = "text"
+				name = "username"
+				th:field = "*{username}"
+				class = "form-control"
+				placeholder="Masukkan Username"
+		/>
+		<ul>
+			<li th:each="err : ${#fields.errors('username')}" th:text="${err}" class="error" />
+		</ul>
+	</div>
+
+	<div class ="form-group">
+		<label  for="password">Password</label>
+		<input type="password" id="password"
+			   th:field="*{password}"
+			   class="form-control form-control-lg"
+			   placeholder="Enter password" />
+		<p id="errorPwd" class="error"/>
+		<ul class="error-ul">
+			<li th:each="err : ${#fields.errors('password')}" th:text="${err}" class="error" />
+		</ul>
+	</div>
+
+	<div class ="form-group">
+		<label  for="namaLengkap"> Nama Lengkap </label>
+		<input
+				id="namaLengkap"
+				type = "text"
+				name = "namaLengkap"
+				th:field = "*{namaLengkap}"
+				class = "form-control"
+				placeholder="Masukkan Nama Lengkap"
+		/>
+		<ul>
+			<li th:each="err : ${#fields.errors('namaLengkap')}" th:text="${err}" class="error" />
+		</ul>
+	</div>
+
+	<div class ="form-group">
+		<label  for="noHp">No Handphone</label>
+		<input type="text" id="noHp" class="form-control form-control-lg"
+			   th:field="*{noHp}"
+			   placeholder="Masukkan No Hp" />
+		<ul class="error-ul">
+			<li th:each="err : ${#fields.errors('noHp')}" th:text="${err}" class="error" />
+		</ul>
+	</div>
+
+	<div class ="form-group">
+		<label  for="email">Email</label>
+		<input type="email" id="email" class="form-control form-control-lg"
+			   th:field="*{email}"
+			   placeholder="Enter Email" />
+		<ul class="error-ul">
+			<li th:each="err : ${#fields.errors('email')}" th:text="${err}" class="error" />
+		</ul>
+	</div>
+
+	<div class ="form-group">
+		<label>Akses</label>
+		<input
+				type = "text"
+				id="namaAkses"
+				name = "namaAkses"
+				th:field = "*{akses.nama}"
+				class = "form-control"
+				placeholder="Pilih"
+				disabled="disabled"
+		/>
+		<input type="hidden" th:field="*{akses.id}" id="idAkses" />
+		<button
+				th:id="pilih-data"
+				th:onclick="funcModalsDataTableHandler('DataAkses','#dataTable','/akses/idAkses/namaAkses/asc/id/0?column=id&value=&size=5','#data-result')"
+				data-toggle="modal" data-target="#dataTable"
+				class="btn btn-primary" type="button">
+			Pilih
+		</button>
+	</div>
+
+	<div class ="form-group">
+		<label> Alamat </label>
+		<textarea
+				type = "text"
+				name = "alamat"
+				th:field = "*{alamat}"
+				class = "form-control"
+				placeholder="Masukkan Alamat"
+		/>
+		<ul>
+			<li th:each="err : ${#fields.errors('alamat')}" th:text="${err}" class="error" />
+		</ul>
+	</div>
+
+	<!-- Tanggal Lahir input -->
+	<div data-mdb-input-init class="form-outline mb-4">
+		<label  for="tanggalLahir">Alamat</label>
+		<input type="date" id="tanggalLahir" class="form-control form-control-lg"
+			   th:field="*{tanggalLahir}"
+			   placeholder="Enter Birth Date" />
+		<ul class="error-ul">
+			<li th:each="err : ${#fields.errors('tanggalLahir')}" th:text="${err}" class="error" />
+		</ul>
+	</div>
+
+	<div class = "modal-footer">
+		<button type="submit" class = "btn btn-primary">
+			Submit
+		</button>
+		<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+	</div>
+</form>
+
+<script th:inline="javascript">
+/*<![CDATA[*/
+    $("#addUser").submit(function(event) {
+          event.preventDefault(); //prevent default action
+          let post_url = $(this).attr("action"); //get form action url
+          let request_method = $(this).attr("method"); //get form GET/POST method
+          let form_data = $(this).serialize(); //Encode form elements for submission
+          $.ajax({
+              url: post_url,
+              type: request_method,
+              data: form_data
+            }).done(function(response) { //
+            let pattern = /50c9a8c2b1cb45799d8f0db5f8449c65/i;
+			let result = response.match(pattern);
+            if(result)
+            {
+				$("#server-results-add").html(response);
+            }
+            else
+            {
+				$('#add1').modal('hide');
+				confirm("DATA BERHASIL DISIMPAN");
+				window.location = "/user";// ini refresh page nya
+            }
+            });
+        });
+
+/*]]>*/
+</script>

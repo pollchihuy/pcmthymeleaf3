@@ -1,13 +1,13 @@
 package com.juaracoding.pcmthymeleaf3.httpclient;
 
-import com.juaracoding.pcmthymeleaf3.dto.validation.ValAksesDTO;
+import com.juaracoding.pcmthymeleaf3.dto.validation.ValUserDTO;
 import feign.Response;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "akses-services",url = "http://localhost:8085/akses")
-public interface AksesService {
+@FeignClient(name = "user-services",url = "http://localhost:8085/user")
+public interface UserService {
 
     @GetMapping
     public ResponseEntity<Object> findAll(@RequestHeader("Authorization") String token);
@@ -18,17 +18,6 @@ public interface AksesService {
             @PathVariable String sort,
             @PathVariable(value = "sort-by") String sortBy,
             @PathVariable Integer page,
-            @RequestParam Integer size,
-            @RequestParam String column,
-            @RequestParam String value);
-
-    @GetMapping("/{sort}/{sort-by}/{page}/{q}")
-    public ResponseEntity<Object> findByParam(
-            @RequestHeader("Authorization") String token,
-            @PathVariable String sort,
-            @PathVariable(value = "sort-by") String sortBy,
-            @PathVariable Integer page,
-            @PathVariable Integer q,
             @RequestParam Integer size,
             @RequestParam String column,
             @RequestParam String value);
@@ -44,7 +33,7 @@ public interface AksesService {
                             @RequestParam String value);
 
     @PostMapping
-    public ResponseEntity<Object> save(@RequestHeader("Authorization") String token,@RequestBody ValAksesDTO valAksesDTO);
+    public ResponseEntity<Object> save(@RequestHeader("Authorization") String token,@RequestBody ValUserDTO valUserDTO);
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> findById(
@@ -53,11 +42,12 @@ public interface AksesService {
 
     @PutMapping("/{id}")
     public ResponseEntity<Object> update( @RequestHeader("Authorization") String token,
-                                          @RequestBody ValAksesDTO valAksesDTO,
+                                          @RequestBody ValUserDTO valUserDTO,
                                           @PathVariable Long id);
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(
                                         @RequestHeader("Authorization") String token,
                                         @PathVariable Long id);
+
 }

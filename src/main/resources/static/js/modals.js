@@ -133,3 +133,25 @@ function checkAll(checkEm,divNames) {
         }
     }
 }
+
+function callDataMasterSorting(sort,sortBy)
+{
+    var delimiter= '/';
+    var idComp = $('#idComp').val();
+    var descComp = $('#descComp').val();
+    var path = $('#pathServer').val();
+    var column = $('#colName').val();
+    var page = $('#currentPage').val();
+    var value = $('#textVal').val();
+    var size = $('#sizeChange').val();
+    var urlz =  delimiter.concat(path,'/',idComp,'/',descComp,'/',sort,'/',sortBy,'/',page,'?column=',column,'&value=',value,'&size=',size);
+    $.get(urlz, function (data) {
+        try{
+            $('#data-result').html(data);
+        }catch(r)
+        {
+            console.log('error '+r)
+            // $('#pilih-data').prop('disabled', false);
+        }
+    });
+}
