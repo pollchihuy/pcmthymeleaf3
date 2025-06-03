@@ -11,6 +11,7 @@ public class LoginDTO {
     @NotNull(message = "Username Tidak Boleh Null")
     @NotBlank(message = "Username Tidak Boleh Blank")
     @NotEmpty(message = "Username Tidak Boleh Kosong")
+    @Pattern(regexp = "^[\\w\\.]{5,50}$",message = "Username Tidak Valid , ex : paul.123")
     private String username;
 
     private String password;

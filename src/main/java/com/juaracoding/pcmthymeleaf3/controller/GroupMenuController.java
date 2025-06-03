@@ -304,7 +304,7 @@ public class GroupMenuController {
         Map<String,Object> map = null;
         Map<String,Object> mapData = null;
         try{
-            response = groupMenuService.findByParam(jwt,sort,sortBy,page,size,column,value);
+            response = groupMenuService.findByParam(jwt,sort,sortBy,page,0,size,column,value);
             map = (Map<String, Object>) response.getBody();
             mapData = (Map<String, Object>) map.get("data");
         }catch (Exception e){

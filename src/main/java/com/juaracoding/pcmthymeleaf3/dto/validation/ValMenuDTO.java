@@ -8,14 +8,12 @@ import jakarta.validation.constraints.Pattern;
 
 public class ValMenuDTO {
 
-    private Long id;
-
     @NotNull(message = "Deskripsi Tidak Boleh Null")
-    @Pattern(regexp = "^[a-zA-Z\\s]{5,50}$",message = "Nama Tidak Valid hanya Alfabet dan spasi Min 5 Max 50 , ex : User Management")
+    @Pattern(regexp = "^[\\w\\s]{5,50}$",message = "Nama Tidak Valid Alfanumerik dan spasi Min 5 Max 50 , ex : User Management")
     private String nama;
 
     @NotNull(message = "Path Tidak Boleh Null")
-    @Pattern(regexp = "^[a-z\\/\\-]{5,50}$",message = "Path Tidak Valid huruf kecil , hyphen dan slash Min 5 Max 50 , ex : /group-menu")
+    @Pattern(regexp = "^[a-z0-9\\/\\-]{5,50}$",message = "Path Tidak Valid huruf kecil ,angka , hyphen dan slash Min 5 Max 50 , ex : /group-menu")
     private String path;
 
     @NotNull(message = "Deskripsi Tidak Boleh Null")
@@ -25,14 +23,6 @@ public class ValMenuDTO {
     @NotNull(message = "Relasi Tidak Boleh Kosong")
     @JsonProperty("group-menu")
     private RelGroupMenuDTO groupMenu;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getNama() {
         return nama;

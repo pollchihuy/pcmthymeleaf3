@@ -2,8 +2,12 @@ package com.juaracoding.pcmthymeleaf3.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.juaracoding.pcmthymeleaf3.dto.response.ResMenuDTO;
-import com.juaracoding.pcmthymeleaf3.dto.validation.ValMenuDTO;
+import com.juaracoding.pcmthymeleaf3.dto.rel.RelMenuDTO;
+import com.juaracoding.pcmthymeleaf3.dto.response.ResAksesDTO;
+import com.juaracoding.pcmthymeleaf3.dto.validation.SelectAksesDTO;
+import com.juaracoding.pcmthymeleaf3.dto.validation.SelectMenuDTO;
+import com.juaracoding.pcmthymeleaf3.dto.validation.ValAksesDTO;
+import com.juaracoding.pcmthymeleaf3.httpclient.AksesService;
 import com.juaracoding.pcmthymeleaf3.httpclient.MenuService;
 import com.juaracoding.pcmthymeleaf3.utils.GlobalFunction;
 import feign.Response;
@@ -22,22 +26,23 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("menu")
-public class MenuController {
+@RequestMapping("akses")
+public class AksesController {
+
+    @Autowired
+    private AksesService aksesService;
+    private Map<String,Object> filterColumn = new HashMap<String,Object>();
 
     @Autowired
     private MenuService menuService;
-    private Map<String,Object> filterColumn = new HashMap<String,Object>();
 
-    public MenuController() {
+    public AksesController() {
         filterColumn.put("nama","Nama");
         filterColumn.put("deskripsi","Deskripsi");
-        filterColumn.put("path","Path");
-        filterColumn.put("group","Group");
     }
 
     @GetMapping
@@ -49,11 +54,11 @@ public class MenuController {
             return jwt;
         }
         try{
-            response = menuService.findAll(jwt);
+            response = aksesService.findAll(jwt);
             Map<String,Object> map = (Map<String, Object>) response.getBody();
             Map<String,Object> mapData = (Map<String, Object>) map.get("data");
-            GlobalFunction.setPagingElement(model,mapData,"menu",filterColumn);
-            GlobalFunction.setGlobalAttribute(model,request,"MENU");
+            GlobalFunction.setPagingElement(model,mapData,"akses",filterColumn);
+            GlobalFunction.setGlobalAttribute(model,request,"AKSES");
         }catch (Exception e){
             return "redirect:/3314&5";
         }
@@ -71,11 +76,11 @@ public class MenuController {
             return jwt;
         }
         try{
-            response = menuService.findAll(jwt);
+            response = aksesService.findAll(jwt);
             Map<String,Object> map = (Map<String, Object>) response.getBody();
             Map<String,Object> mapData = (Map<String, Object>) map.get("data");
-            GlobalFunction.setPagingElement(model,mapData,"menu",filterColumn);
-            GlobalFunction.setGlobalAttribute(model,request,"MENU");
+            GlobalFunction.setPagingElement(model,mapData,"akses",filterColumn);
+            GlobalFunction.setGlobalAttribute(model,request,"Akses");
         }catch (Exception e){
             return "redirect:/3314&5";
         }
@@ -103,11 +108,11 @@ public class MenuController {
             return jwt;
         }
         try{
-            response = menuService.findByParam(jwt,sort,sortBy,page,size,column,value);
+            response = aksesService.findByParam(jwt,sort,sortBy,page,size,column,value);
             Map<String,Object> map = (Map<String, Object>) response.getBody();
             Map<String,Object> mapData = (Map<String, Object>) map.get("data");
-            GlobalFunction.setPagingElement(model,mapData,"menu",filterColumn);
-            GlobalFunction.setGlobalAttribute(model,request,"MENU");
+            GlobalFunction.setPagingElement(model,mapData,"akses",filterColumn);
+            GlobalFunction.setGlobalAttribute(model,request,"AKSES");
         }catch (Exception e){
             return "redirect:/3314&5";
         }
@@ -129,7 +134,7 @@ public class MenuController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resource);
         }
         try{
-            response = menuService.downloadExcel(jwt,column,value);
+            response = aksesService.downloadExcel(jwt,column,value);
             fileName = response.headers().get("Content-Disposition").toString();
             InputStream inputStream = response.body().asInputStream();
             resource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
@@ -157,7 +162,7 @@ public class MenuController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resource);
         }
         try{
-            response = menuService.downloadPdf(jwt,column,value);
+            response = aksesService.downloadPdf(jwt,column,value);
             fileName = response.headers().get("Content-Disposition").toString();
             InputStream inputStream = response.body().asInputStream();
             resource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
@@ -174,39 +179,46 @@ public class MenuController {
     public String openModalsAdd(
             Model model,
             WebRequest request){
-        ResponseEntity<Object> response = null;
         String jwt = GlobalFunction.tokenCheck(model, request);
+
+        List<Map<String,Object>> listDataMenu = null;
         if(jwt.equals("redirect:/774$_3")){
             return jwt;
         }
-        model.addAttribute("data",new ResMenuDTO());
-        return "/menu/add";
+        try{
+            listDataMenu = getListMenu(menuService,jwt);
+        }catch (Exception e){
+
+        }
+        model.addAttribute("data",new ResAksesDTO());
+        model.addAttribute("x",listDataMenu);
+        return "/akses/add";
     }
 
     @PostMapping("")
     public String save(
-            @ModelAttribute("data") @Valid ValMenuDTO valMenuDTO,
+            @ModelAttribute("data") @Valid SelectAksesDTO selectAksesDTO,
             BindingResult bindingResult,
             Model model,
             WebRequest request){
-
-        if(bindingResult.hasErrors()){
-            model.addAttribute("data",valMenuDTO);
-            return "/menu/add";
-        }
-
         ResponseEntity<Object> response = null;
         String jwt = GlobalFunction.tokenCheck(model, request);
         if(jwt.equals("redirect:/774$_3")){
             return jwt;
         }
 
+        if(bindingResult.hasErrors()){
+            model.addAttribute("data",selectAksesDTO);
+            model.addAttribute("x",getListMenu(menuService,jwt));
+            return "/akses/add";
+        }
+        ValAksesDTO valAksesDTO = mapToValAksesDTO(selectAksesDTO);
         try{
-            response = menuService.save(jwt,valMenuDTO);
+            response = aksesService.save(jwt,valAksesDTO);
         }catch (Exception e){
-            System.out.println("error "+e.getMessage());
-            model.addAttribute("data",valMenuDTO);
-            return "/menu/add";
+            model.addAttribute("data",selectAksesDTO);
+            model.addAttribute("x",getListMenu(menuService,jwt));
+            return "/akses/add";
         }
         return "form-success";
     }
@@ -220,35 +232,60 @@ public class MenuController {
         String jwt = GlobalFunction.tokenCheck(model, request);
         Map<String,Object> map = null;
         Map<String,Object> mapData = null;
+        List<Map<String,Object>> listAksesMenu = null;
+        List<Map<String,Object>> listMenu = null;
+
+        List<SelectMenuDTO> listAllMenu = null;
+        Set<Long> menuSelected = null;
+        List<SelectMenuDTO> selectedMenuDTO = new ArrayList<>();
+
         if(jwt.equals("redirect:/774$_3")){
             return jwt;
         }
         try{
-            response = menuService.findById(jwt,id);
+            response = aksesService.findById(jwt,id);
+            listMenu = getListMenu(menuService,jwt);
             map = (Map<String, Object>) response.getBody();
             mapData = (Map<String, Object>) map.get("data");
+            listAksesMenu = (List<Map<String, Object>>) mapData.get("list-menu");
+
+            listAllMenu = getAllMenu(listMenu);
+            for (SelectMenuDTO menu : listAllMenu) {
+                for(Map<String,Object> m:listAksesMenu){
+                    Long idMenu = menu.getId();
+                    Long idAksesMenu =Long.parseLong(m.get("id").toString());
+                    if(idMenu==idAksesMenu){
+                        selectedMenuDTO.add(menu);
+                        break;
+                    }
+                }
+            }
+           menuSelected = selectedMenuDTO.stream().map(SelectMenuDTO::getId).collect(Collectors.toSet());
 
         }catch (Exception e){
             model.addAttribute("id",mapData.get("id"));
-            return "/menu/edit";
+            return "/akses/edit";
         }
-        model.addAttribute("data",new ObjectMapper().convertValue(mapData,ResMenuDTO.class));
+        model.addAttribute("data",new ObjectMapper().convertValue(mapData,ResAksesDTO.class));
         model.addAttribute("id",mapData.get("id"));
-        return "/menu/edit";
+        model.addAttribute("menuSelected", menuSelected);
+        model.addAttribute("listMenu", listAllMenu);
+
+        return "/akses/edit";
     }
 
     @PostMapping("/{id}")
     public String update(
-            @ModelAttribute("data") @Valid ValMenuDTO valMenuDTO,
+            @ModelAttribute("data") @Valid SelectAksesDTO selectAksesDTO,
             BindingResult bindingResult,
             Model model,
             @PathVariable Long id,
             WebRequest request){
 
         if(bindingResult.hasErrors()){
-            model.addAttribute("data",valMenuDTO);
+            model.addAttribute("data",selectAksesDTO);
             model.addAttribute("id",id);
-            return "/menu/edit";
+            return "/akses/edit";
         }
 
         ResponseEntity<Object> response = null;
@@ -258,11 +295,11 @@ public class MenuController {
         }
 
         try{
-            response = menuService.update(jwt,valMenuDTO,id);
+//            response = aksesService.update(jwt,selectAksesDTO,id);
         }catch (Exception e){
-            model.addAttribute("data",valMenuDTO);
+            model.addAttribute("data",selectAksesDTO);
             model.addAttribute("id",id);
-            return "/menu/edit";
+            return "/akses/edit";
         }
         return "form-success";
     }
@@ -281,10 +318,44 @@ public class MenuController {
 
         try{
 //            int z = 1/0;
-            response = menuService.delete(jwt,id);
+            response = aksesService.delete(jwt,id);
         }catch (Exception e){
             return "/form-error";
         }
         return "/form-success";
+    }
+
+    private ValAksesDTO mapToValAksesDTO(SelectAksesDTO selectAksesDTO){
+        ValAksesDTO valAksesDTO = new ValAksesDTO();
+        valAksesDTO.setDeskripsi(selectAksesDTO.getDeskripsi());
+        valAksesDTO.setNama(selectAksesDTO.getNama());
+        List<String> lt = selectAksesDTO.getListMenu();
+        List<RelMenuDTO> listRelMenuDTO = new ArrayList<>();
+        for(int i=0;i<lt.size();i++){
+            RelMenuDTO relMenuDTO = new RelMenuDTO();
+            relMenuDTO.setId(Long.parseLong(lt.get(i)));
+            listRelMenuDTO.add(relMenuDTO);
+        }
+        valAksesDTO.setListMenu(listRelMenuDTO);
+        return valAksesDTO;
+    }
+
+    public List<Map<String,Object>> getListMenu(MenuService menuService,String jwt){
+        ResponseEntity<Object> response = menuService.findAll(jwt);
+        Map<String,Object> mapMenu =  (Map<String, Object>) response.getBody();
+        Map<String,Object> mapDataMenu =(Map<String, Object>) mapMenu.get("data");
+        return  (List<Map<String,Object>>) mapDataMenu.get("content");
+    }
+
+    public List<SelectMenuDTO> getAllMenu(List<Map<String,Object>> ltMenu){
+        List<SelectMenuDTO> selectMenuDTOS = new ArrayList<>();
+        SelectMenuDTO selectMenuDTO = null;
+        for(Map<String,Object> menu:ltMenu){
+            selectMenuDTO = new SelectMenuDTO();
+            selectMenuDTO.setId(Long.parseLong(menu.get("id").toString()));
+            selectMenuDTO.setNama(menu.get("nama").toString());
+            selectMenuDTOS.add(selectMenuDTO);
+        }
+        return selectMenuDTOS;
     }
 }
