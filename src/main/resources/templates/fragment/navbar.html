@@ -3,7 +3,7 @@
         <li><a th:href="@{/home}" >Home</a></li>
         <th:block th:if="${USR_NAME != null}" th:utext="${MENU_NAVBAR}"></th:block>
         <li><a th:if="${USR_NAME != null}" th:href="@{/logout}" >Logout</a></li>
-        <li><a th:if="${USR_NAME == null}" th:href="@{/}" >Login</a></li>
+        <li><a th:if="${USR_NAME == null}" th:href="@{/login}" >Login</a></li>
         <li><a th:href="@{/contact-us}" >Contact Us</a></li>
         <li><a th:href="@{/promo}" >Promo</a></li>
         <li><a th:href="@{/contact-us}" >Wajib</a></li>

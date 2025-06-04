@@ -1,16 +1,29 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-    <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.6.2/css/bootstrap.min.css}" type="text/css"/>
+    <meta charset="UTF-8">
     <link rel="stylesheet" th:href="@{/css/style.css}" type="text/css"/>
-
     <title>HOME</title>
 </head>
 <body>
 <div th:replace="~{fragment/navbar::navheader}"></div>
 <h1 style="background-color: red">HOME</h1>
+<img th:if="${URL_IMG!=null}" th:src="${URL_IMG}" alt="HTML5 Icon" style="width:128px;height:128px;">
+<img th:unless="${URL_IMG!=null}" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="HTML5 Icon" style="width:128px;height:128px;">
+<form
+        id="uploadImage"
+        method="post"
+        th:action="@{/user/files/upload/{id}(id=${USR_NAME})}"
+        enctype="multipart/form-data">
+    <div>
+        <input id="input-file" type="file" name="file" />
+    </div>
+    <div>
+        <button class="btn btn-sm btn-outline-success float-right" type="submit">
+            Upload
+        </button>
+    </div>
+</form>
 
-<a th:href="@{/auth/coba}">COBA</a>
 </body>
 </html>

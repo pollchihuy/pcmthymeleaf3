@@ -56,11 +56,14 @@ public class DefaultController {
     @GetMapping("/home")
     public String home(Model model, WebRequest webRequest) {
 
-        String username = webRequest.getAttribute("USR_NAME",1).toString();
-        String menuNavBar= webRequest.getAttribute("MENU_NAVBAR",1).toString();
+        Object username = webRequest.getAttribute("USR_NAME",1);
+        Object menuNavBar= webRequest.getAttribute("MENU_NAVBAR",1);
+        Object urlImg= webRequest.getAttribute("URL_IMG",1);
 
         model.addAttribute("USR_NAME",username);
         model.addAttribute("MENU_NAVBAR",menuNavBar);
+        model.addAttribute("URL_IMG",urlImg);
+
         return "/auth/home";
     }
     @GetMapping("/logout")

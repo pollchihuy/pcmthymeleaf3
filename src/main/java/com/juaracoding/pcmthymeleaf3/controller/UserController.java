@@ -20,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
 import java.util.HashMap;
@@ -289,5 +290,30 @@ public class UserController {
             return "/form-error";
         }
         return "/form-success";
+    }
+
+    @PostMapping("/files/upload/{username}")
+    public String uploadImage(
+            Model model,
+            @PathVariable String username,
+            @RequestParam MultipartFile file, WebRequest request) {
+        ResponseEntity<Object> response = null;
+        String jwt = GlobalFunction.tokenCheck(model, request);
+        if (jwt.equals("redirect:/774$_3")) {
+            return jwt;
+        }
+        try {
+            response = userService.uploadImage(jwt,username, file);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return "redirect:/home";
+        }
+        Map<String, Object> data = (Map<String, Object>) response.getBody();
+        String urlImg = data.get("url-img").toString();
+//        model.addAttribute("pesan","Data Berhasil Diubah");
+        request.setAttribute("URL_IMG", urlImg, 1);
+        GlobalFunction.setGlobalAttribute(model,request,"HOME");
+        model.addAttribute("URL_IMG",urlImg);
+        return "/auth/home";
     }
 }

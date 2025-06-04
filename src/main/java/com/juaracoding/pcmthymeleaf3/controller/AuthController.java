@@ -126,6 +126,7 @@ public class AuthController {
         ResponseEntity<Object> response = null;
         String tokenJwt = "";
         String menuNavBar = "";
+        String urlImg ="";
 
         try {
             response = authService.login(loginDTO);
@@ -134,6 +135,7 @@ public class AuthController {
             tokenJwt = (String) mapData.get("token");
             List<Map<String,Object>> listMenu = (List<Map<String, Object>>) mapData.get("menu");
             menuNavBar = new GenerateStringMenu().stringMenu(listMenu);
+            urlImg = map.get("urlImage")==null?null:map.get("urlImage").toString();
 //            System.out.println("Menu Nav Bar  : " + menuNavBar);
         }catch (Exception e){
             System.out.println("Error : "+e.getMessage());
@@ -146,8 +148,9 @@ public class AuthController {
         webRequest.setAttribute("PASSWORD",loginDTO.getPassword(),1);
         webRequest.setAttribute("MENU_NAVBAR",menuNavBar,1);
 
-        model.addAttribute("USR_NAME",loginDTO);
+        model.addAttribute("USR_NAME",loginDTO.getUsername());
         model.addAttribute("MENU_NAVBAR",menuNavBar);
+        model.addAttribute("URL_IMG",urlImg);
         return "auth/home";
     }
 
