@@ -6,7 +6,34 @@ function funcModalsHandler(event)
     var dataTarget = button.dataset.target
     var urlz = button.dataset.url
     var serverz = button.dataset.server
-    $(dataTarget).on('show.bs.modal',function(){
+    $(dataTarget).one('show.bs.modal',function(){
+        // $(this).data('bs.modal')._config.backdrop = 'static';
+        // $(this).data('bs.modal')._config.keyboard = false;
+        // fetch(urlz)
+        // .then(response => response.text())
+        // .then(data => {
+        //     const pattern = /Login/i;
+        //     const result = data.match(pattern);
+        //     try {
+        //     if (result) {
+        //         window.location = "/er";
+        //     } else {
+        //         document.querySelector(serverz).innerHTML = data;
+        //     }
+        //     } catch (e) {
+        //     console.error('error', e);
+        //     } finally {
+        //     document.querySelector(dataTarget)
+        //         .querySelector('.modal-title')
+        //         .textContent = dataTitle;
+        //     }
+        // })
+        // .catch(err => {
+        //     console.error("Fetch error:", err);
+        // });
+
+        $(this).data('bs.modal')._config.backdrop = 'static';
+        $(this).data('bs.modal')._config.keyboard = false;
         $.get(urlz, function (data) {
             let pattern = /Login/i;
             let result = data.match(pattern);
@@ -51,8 +78,8 @@ function requestDeleteHandler(event)
 
 function funcModalsDataTableHandler(dataTitle,dataTarget,urlz,serverz)
 {
-    $(dataTarget).on('show.bs.modal',function(){
-
+    $(dataTarget).one('show.bs.modal',function(){
+        $(this).data('bs.modal')._config.keyboard = false;
         $.get(urlz, function (data) {
             try{
                 $(serverz).html(data);

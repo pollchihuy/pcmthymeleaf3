@@ -25,7 +25,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.context.request.WebRequest;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +39,7 @@ public class AuthController {
     @Autowired
     private RefreshTokenService refreshTokenService;
 
-    @PostMapping("/regis")
+    @PostMapping("regis")
     public String regis(Model model,
                         @Valid @ModelAttribute("usr") RegisDTO regisDTO ,
                         BindingResult result, WebRequest webRequest){
@@ -74,7 +73,7 @@ public class AuthController {
 
     }
 
-    @PostMapping("/verify-regis")
+    @PostMapping("verify-regis")
     public String verifyRegis(Model model,
                         @Valid @ModelAttribute("x") VerifyRegisDTO verifyRegisDTO ,
                         BindingResult result, WebRequest webRequest){
@@ -94,7 +93,7 @@ public class AuthController {
         return "redirect:/xyz$413";
     }
 
-    @PostMapping("/login")
+    @PostMapping("login")
     public String login(Model model,
                         @Valid @ModelAttribute("usr") LoginDTO loginDTO ,
                         BindingResult result, WebRequest webRequest){
@@ -116,7 +115,8 @@ public class AuthController {
                 model.addAttribute("captchaMessage", "Invalid Captcha");
             }
             GlobalFunction.getCaptchaLogin(loginDTO);
-            return "/auth/login";
+            loginDTO.setPassword("");
+            return "auth/login";
         }
         loginDTO.setPassword(decodePassword);
         loginDTO.setCaptcha("");
@@ -130,6 +130,7 @@ public class AuthController {
 
         try {
             response = authService.login(loginDTO);
+
             Map<String,Object> map = (Map<String, Object>) response.getBody();
             Map<String,Object> mapData = (Map<String, Object>) map.get("data");
             tokenJwt = (String) mapData.get("token");
@@ -139,8 +140,10 @@ public class AuthController {
 //            System.out.println("Menu Nav Bar  : " + menuNavBar);
         }catch (Exception e){
             System.out.println("Error : "+e.getMessage());
+            model.addAttribute("loginFailed","Username / Password Salah !!");
             GlobalFunction.getCaptchaLogin(loginDTO);
-            return "/auth/login";
+            loginDTO.setPassword("");
+            return "auth/login";
         }
         /** input ke table session */
         webRequest.setAttribute("JWT",tokenJwt,1);
@@ -154,7 +157,7 @@ public class AuthController {
         return "auth/home";
     }
 
-    @GetMapping("/coba")
+    @GetMapping("coba")
     public String ambilRequest(Model model,WebRequest request){
         String username = request.getAttribute("USR_NAME",1).toString();
         String password = request.getAttribute("PASSWORD",1).toString();
@@ -174,6 +177,6 @@ public class AuthController {
 
         String jwtToken = mapData.get("token").toString();
         request.setAttribute("JWT",jwtToken,1);
-        return "/auth/home";
+        return "auth/home";
     }
 }

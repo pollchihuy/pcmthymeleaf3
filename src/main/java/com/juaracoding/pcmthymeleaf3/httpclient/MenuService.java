@@ -1,12 +1,14 @@
 package com.juaracoding.pcmthymeleaf3.httpclient;
 
+import com.juaracoding.pcmthymeleaf3.config.FeignClientConfig;
 import com.juaracoding.pcmthymeleaf3.dto.validation.ValMenuDTO;
 import feign.Response;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "menu-services",url = "http://localhost:8085/menu")
+//@FeignClient(name = "menu-services",url = "http://localhost:8080/menu")
+@FeignClient(name = "menu-services",url = "${host.rest.api}"+"menu",configuration = FeignClientConfig.class)
 public interface MenuService {
 
     @GetMapping

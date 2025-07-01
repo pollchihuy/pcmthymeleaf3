@@ -57,10 +57,10 @@ public class MenuController {
         }catch (Exception e){
             return "redirect:/3314&5";
         }
-        return "/main";
+        return "main";
     }
 
-    @GetMapping("/err/{err}")
+    @GetMapping("err/{err}")
     public String defaultPageError(Model model,
                                    @PathVariable String err,
                                    WebRequest request){
@@ -77,16 +77,19 @@ public class MenuController {
             GlobalFunction.setPagingElement(model,mapData,"menu",filterColumn);
             GlobalFunction.setGlobalAttribute(model,request,"MENU");
         }catch (Exception e){
-            return "redirect:/3314&5";
+            return GlobalFunction.errorHandleMainPage(e.getMessage(),"group-menu");
         }
-        if(err.equals("500")){
-            err = "Internal Server Error (500)";
+        switch (err){
+            case "400":err="DATA TIDAK DITEMUKAN (400)";break;
+            case "error-pdf":err="GAGAL MENGUNDUH FILE PDF (500)";break;
+            case "error-xlsx":err="GAGAL MENGUNDUH FILE EXCEL (500)";break;
+            default:err="INTERNAL SERVER ERROR";break;
         }
-        model.addAttribute("errorInternalServer",err);
-        return "/main";
+        model.addAttribute("globalError",err);
+        return "main";
     }
 
-    @GetMapping("/{sort}/{sortBy}/{page}")
+    @GetMapping("{sort}/{sortBy}/{page}")
     public String findByParam(
             Model model,
             @PathVariable String sort,
@@ -109,13 +112,13 @@ public class MenuController {
             GlobalFunction.setPagingElement(model,mapData,"menu",filterColumn);
             GlobalFunction.setGlobalAttribute(model,request,"MENU");
         }catch (Exception e){
-            return "redirect:/3314&5";
+            return GlobalFunction.errorHandleMainPage(e.getMessage(),"group-menu");
         }
-        return "/main";
+        return "main";
     }
 
-    @GetMapping("/excel")
-    public ResponseEntity<Object> downloadExcel(
+    @GetMapping("excel")
+    public Object downloadExcel(
             Model model,
             @RequestParam(value = "column") String column,
             @RequestParam(value = "value") String value,
@@ -126,7 +129,7 @@ public class MenuController {
         String fileName = "";
         String jwt = GlobalFunction.tokenCheck(model, request);
         if(jwt.equals("redirect:/774$_3")){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resource);
+            return "redirect:/774$_3";
         }
         try{
             response = menuService.downloadExcel(jwt,column,value);
@@ -134,6 +137,7 @@ public class MenuController {
             InputStream inputStream = response.body().asInputStream();
             resource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
         }catch (Exception e){
+            return GlobalFunction.errorHandleFile(e.getMessage(),"menu","xlsx");
         }
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Disposition",fileName.substring(0,fileName.length()-1));
@@ -142,8 +146,8 @@ public class MenuController {
                 body(resource);
     }
 
-    @GetMapping("/pdf")
-    public ResponseEntity<Object> downloadPdf(
+    @GetMapping("pdf")
+    public Object downloadPdf(
             Model model,
             @RequestParam(value = "column") String column,
             @RequestParam(value = "value") String value,
@@ -154,7 +158,7 @@ public class MenuController {
         String fileName = "";
         String jwt = GlobalFunction.tokenCheck(model, request);
         if(jwt.equals("redirect:/774$_3")){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resource);
+            return "redirect:/774$_3";
         }
         try{
             response = menuService.downloadPdf(jwt,column,value);
@@ -162,6 +166,7 @@ public class MenuController {
             InputStream inputStream = response.body().asInputStream();
             resource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
         }catch (Exception e){
+            return GlobalFunction.errorHandleFile(e.getMessage(),"menu","pdf");
         }
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Disposition",fileName.substring(0,fileName.length()-1));
@@ -170,7 +175,7 @@ public class MenuController {
                 body(resource);
     }
 
-    @GetMapping("/a")
+    @GetMapping("a")
     public String openModalsAdd(
             Model model,
             WebRequest request){
@@ -180,7 +185,7 @@ public class MenuController {
             return jwt;
         }
         model.addAttribute("data",new ResMenuDTO());
-        return "/menu/add";
+        return "menu/add";
     }
 
     @PostMapping("")
@@ -192,26 +197,24 @@ public class MenuController {
 
         if(bindingResult.hasErrors()){
             model.addAttribute("data",valMenuDTO);
-            return "/menu/add";
+            return "menu/add";
         }
 
         ResponseEntity<Object> response = null;
         String jwt = GlobalFunction.tokenCheck(model, request);
         if(jwt.equals("redirect:/774$_3")){
-            return jwt;
+            return "error-401";
         }
 
         try{
             response = menuService.save(jwt,valMenuDTO);
         }catch (Exception e){
-            System.out.println("error "+e.getMessage());
-            model.addAttribute("data",valMenuDTO);
-            return "/menu/add";
+            return GlobalFunction.errorHandleModals(e.getMessage());
         }
-        return "form-success";
+        return "status-200";
     }
 
-    @GetMapping("/e/{id}")
+    @GetMapping("e/{id}")
     public String openModalsEdit(
             Model model,
             @PathVariable Long id,
@@ -230,14 +233,14 @@ public class MenuController {
 
         }catch (Exception e){
             model.addAttribute("id",mapData.get("id"));
-            return "/menu/edit";
+            return "menu/edit";
         }
         model.addAttribute("data",new ObjectMapper().convertValue(mapData,ResMenuDTO.class));
         model.addAttribute("id",mapData.get("id"));
-        return "/menu/edit";
+        return "menu/edit";
     }
 
-    @PostMapping("/{id}")
+    @PostMapping("{id}")
     public String update(
             @ModelAttribute("data") @Valid ValMenuDTO valMenuDTO,
             BindingResult bindingResult,
@@ -248,26 +251,24 @@ public class MenuController {
         if(bindingResult.hasErrors()){
             model.addAttribute("data",valMenuDTO);
             model.addAttribute("id",id);
-            return "/menu/edit";
+            return "menu/edit";
         }
 
         ResponseEntity<Object> response = null;
         String jwt = GlobalFunction.tokenCheck(model, request);
         if(jwt.equals("redirect:/774$_3")){
-            return jwt;
+            return "error-401";
         }
 
         try{
             response = menuService.update(jwt,valMenuDTO,id);
         }catch (Exception e){
-            model.addAttribute("data",valMenuDTO);
-            model.addAttribute("id",id);
-            return "/menu/edit";
+            return GlobalFunction.errorHandleModals(e.getMessage());
         }
-        return "form-success";
+        return "status-200";
     }
 
-    @PostMapping("/d/{id}")
+    @PostMapping("d/{id}")
     public String delete(
             Model model,
             @PathVariable Long id,
@@ -280,11 +281,10 @@ public class MenuController {
         }
 
         try{
-//            int z = 1/0;
             response = menuService.delete(jwt,id);
         }catch (Exception e){
-            return "/form-error";
+            return "error-400";
         }
-        return "/form-success";
+        return "status-200";
     }
 }

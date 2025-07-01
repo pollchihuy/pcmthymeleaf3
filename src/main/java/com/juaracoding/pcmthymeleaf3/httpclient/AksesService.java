@@ -1,12 +1,15 @@
 package com.juaracoding.pcmthymeleaf3.httpclient;
 
+import com.juaracoding.pcmthymeleaf3.config.FeignClientConfig;
+import com.juaracoding.pcmthymeleaf3.config.OtherConfig;
 import com.juaracoding.pcmthymeleaf3.dto.validation.ValAksesDTO;
 import feign.Response;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "akses-services",url = "http://localhost:8085/akses")
+//@FeignClient(name = "akses-services",url = "http://localhost:8080/akses")
+@FeignClient(name = "akses-services",url = "${host.rest.api}"+"akses",configuration = FeignClientConfig.class)
 public interface AksesService {
 
     @GetMapping

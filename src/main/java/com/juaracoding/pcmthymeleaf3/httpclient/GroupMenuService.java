@@ -1,15 +1,14 @@
 package com.juaracoding.pcmthymeleaf3.httpclient;
 
+import com.juaracoding.pcmthymeleaf3.config.FeignClientConfig;
 import com.juaracoding.pcmthymeleaf3.dto.validation.ValGroupMenuDTO;
 import feign.Response;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "group-menu-services",url = "http://localhost:8085/group-menu")
+//@FeignClient(name = "group-menu-services",url = "http://localhost:8080/group-menu")
+@FeignClient(name = "group-menu-services",url = "${host.rest.api}"+"group-menu",configuration = FeignClientConfig.class)
 public interface GroupMenuService {
 
     @GetMapping

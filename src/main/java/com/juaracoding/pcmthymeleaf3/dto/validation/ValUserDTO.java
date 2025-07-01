@@ -10,6 +10,7 @@ import com.juaracoding.pcmthymeleaf3.dto.rel.RelAksesDTO;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 

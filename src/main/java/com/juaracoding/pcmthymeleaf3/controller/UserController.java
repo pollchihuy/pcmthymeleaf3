@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 @Controller
 @RequestMapping("user")
@@ -61,10 +62,10 @@ public class UserController {
         }catch (Exception e){
             return "redirect:/3314&5";
         }
-        return "/main";
+        return "main";
     }
 
-    @GetMapping("/err/{err}")
+    @GetMapping("err/{err}")
     public String defaultPageError(Model model,
                                    @PathVariable String err,
                                    WebRequest request){
@@ -87,10 +88,10 @@ public class UserController {
             err = "Internal Server Error (500)";
         }
         model.addAttribute("errorInternalServer",err);
-        return "/main";
+        return "main";
     }
 
-    @GetMapping("/{sort}/{sortBy}/{page}")
+    @GetMapping("{sort}/{sortBy}/{page}")
     public String findByParam(
             Model model,
             @PathVariable String sort,
@@ -115,10 +116,10 @@ public class UserController {
         }catch (Exception e){
             return "redirect:/3314&5";
         }
-        return "/main";
+        return "main";
     }
 
-    @GetMapping("/excel")
+    @GetMapping("excel")
     public ResponseEntity<Object> downloadExcel(
             Model model,
             @RequestParam(value = "column") String column,
@@ -146,7 +147,7 @@ public class UserController {
                 body(resource);
     }
 
-    @GetMapping("/pdf")
+    @GetMapping("pdf")
     public ResponseEntity<Object> downloadPdf(
             Model model,
             @RequestParam(value = "column") String column,
@@ -174,7 +175,7 @@ public class UserController {
                 body(resource);
     }
 
-    @GetMapping("/a")
+    @GetMapping("a")
     public String openModalsAdd(
             Model model,
             WebRequest request){
@@ -183,39 +184,138 @@ public class UserController {
         if(jwt.equals("redirect:/774$_3")){
             return jwt;
         }
-        model.addAttribute("data",new ResUserDTO());
-        return "/user/add";
+//        model.addAttribute("data",new ResUserDTO());
+        return "user/add";
     }
 
-    @PostMapping("")
-    public String save(
-            @ModelAttribute("data") @Valid ValUserDTO valUserDTO,
-            BindingResult bindingResult,
-            Model model,
-            WebRequest request){
+//    @PostMapping("")
+//    public String save(
+//            @ModelAttribute("data") @Valid ValUserDTO valUserDTO,
+//            @RequestParam MultipartFile file,
+//            BindingResult bindingResult,
+//            Model model,
+//            WebRequest request){
+//
+//        if(bindingResult.hasErrors()){
+//            model.addAttribute("data",valUserDTO);
+//            return "user/add";
+//        }
+//
+//        ResponseEntity<Object> response = null;
+//        String jwt = GlobalFunction.tokenCheck(model, request);
+//        if(jwt.equals("redirect:/774$_3")){
+//            return jwt;
+//        }
+//        try{
+////            response = userService.save(jwt,valUserDTO);
+//            response = userService.save(jwt,valUserDTO,file);
+//        }catch (Exception e){
+//            System.out.println("error "+e.getMessage());
+//            model.addAttribute("data",valUserDTO);
+//            return "user/add";
+//        }
+//        return "form-success";
+//    }
 
-        if(bindingResult.hasErrors()){
-            model.addAttribute("data",valUserDTO);
-            return "/user/add";
+
+    private Boolean userFormValidation(Model model,String username,String password,
+                                    String email,String namaLengkap,String alamat,
+                                    String tanggalLahir,String idAkses,String noHp){
+        Boolean isValid = false;
+        /**jika ada 1 atau lebih field yang error
+         karena validasi maka
+         counter tidak menjadi 0 lagi dan itu menandakan
+         request tidak dapat diteruskan ke rest api*/
+        int intCounter = 0;
+
+        intCounter = setErrorMessage(model,"usernameMessage",
+                username,"Format Huruf kecil ,numeric dan titik saja min 8 max 16 karakter, ex : paulch.1234",
+                "^([a-z0-9\\.]{8,16})$")?intCounter:1;
+        intCounter = setErrorMessage(model,"passwordMessage",
+                password,"Format minimal 1 angka, 1 huruf kecil, 1 huruf besar, 1 spesial karakter (_ \"Underscore\", - \"Hyphen\", # \"Hash\", atau $ \"Dollar\" atau @ \"At\") setelah 4 kondisi min 9 max 16 alfanumerik, contoh : aB4$12345",
+                "^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[@_#\\-$])[\\w].{8,15}$")?intCounter:1;
+        intCounter = setErrorMessage(model,
+                "emailMessage",email,"Format tidak valid ex : user_name123@sub.domain.com",
+                "^(?=.{1,256})(?=.{1,64}@.{1,255}$)(?:(?![.])[a-zA-Z0-9._%+-]+(?:(?<!\\\\)[.][a-zA-Z0-9-]+)*?)@[a-zA-Z0-9.-]+(?:\\.[a-zA-Z]{2,50})+$")?intCounter:intCounter++;
+        intCounter = setErrorMessage(model,
+                "noHpMessage",noHp,"Format No HP Tidak Valid , min 9 max 13 setelah angka 8, contoh : (0/62/+62)81111111",
+                "^(62|\\+62|0)8[0-9]{9,13}$")?intCounter:1;
+        intCounter = setErrorMessage(model,"namaLengkapMessage",
+                namaLengkap ,"Hanya Alfabet dan spasi Minimal 4 Maksimal 70","^[a-zA-Z\\s]{4,70}$")?intCounter:1;
+        intCounter = setErrorMessage(model,"alamatMessage",
+                alamat,"Format Alamat Tidak Valid min 20 maks 255, contoh : Jln. Kenari 2B jakbar 11480",
+                "^[\\w\\s\\.\\,]{20,255}$")?intCounter:1;
+        intCounter = setErrorMessage(model,"tanggalLahirMessage",
+                tanggalLahir,"Format Tanggal Lahir Tidak Sesuai Standar",
+                "^(19|20)\\d{2}-(0[1-9]|1[1,2])-(0[1-9]|[12][0-9]|3[01])$")?intCounter:1;
+        intCounter = setErrorMessage(model,
+                "idAksesMessage",idAkses,"Akses Wajib Dipilih",
+                "^[\\d]{1,5}$")?intCounter:1;
+        if(intCounter==0){
+            isValid = true;
         }
+        return isValid;
+    }
+
+    private Boolean setErrorMessage(Model model,String fieldError, String value,
+                                    String message,String regex){
+        Boolean isValid = Pattern.compile(regex).matcher(value).find();
+        if(!isValid){
+            model.addAttribute(fieldError,message);//untuk mengisi pesan error dari field yang bermasalah
+        }
+        return isValid;
+    }
+    /** set nilai yang sudah di entry sebelumnya jika terjadi error */
+    private void setValueToFormIfError(Model model,String username,String password,
+                                       String email,String namaLengkap,String alamat,
+                                       String tanggalLahir,String idAkses){
+        model.addAttribute("username",username);
+        model.addAttribute("password",password);
+        model.addAttribute("email",email);
+        model.addAttribute("namaLengkap",namaLengkap);
+        model.addAttribute("alamat",alamat);
+        model.addAttribute("tanggalLahir",tanggalLahir);
+        model.addAttribute("idAkses",idAkses);
+    }
+
+
+    @PostMapping("")
+    public String save(Model model,
+            @RequestParam(value = "username") String username,
+            @RequestParam(value = "password") String password,
+            @RequestParam(value = "email") String email,
+            @RequestParam(value = "namaLengkap") String namaLengkap,
+            @RequestParam(value = "alamat") String alamat,
+            @RequestParam(value = "tanggalLahir") String tanggalLahir,
+            @RequestParam(value = "idAkses") String idAkses,
+            @RequestParam(value = "noHp") String noHp,
+            @RequestParam(value = "file") MultipartFile file,
+            WebRequest request){
 
         ResponseEntity<Object> response = null;
         String jwt = GlobalFunction.tokenCheck(model, request);
         if(jwt.equals("redirect:/774$_3")){
             return jwt;
         }
-
+        if(!userFormValidation(model,username,password,email,namaLengkap,alamat,tanggalLahir,idAkses,noHp)){
+            setValueToFormIfError(model,username,password,email,namaLengkap,alamat,tanggalLahir,idAkses);
+            return "user/add";
+        }
         try{
-            response = userService.save(jwt,valUserDTO);
+
+            response = userService.save(jwt,
+                    username,password,email,namaLengkap,alamat,tanggalLahir,idAkses,noHp,
+                    file);
         }catch (Exception e){
             System.out.println("error "+e.getMessage());
-            model.addAttribute("data",valUserDTO);
-            return "/user/add";
+            setValueToFormIfError(model,username,password,email,namaLengkap,alamat,tanggalLahir,idAkses);
+            return "user/add";
         }
-        return "form-success";
+
+        return "status-200";
     }
 
-    @GetMapping("/e/{id}")
+    @GetMapping("e/{id}")
     public String openModalsEdit(
             Model model,
             @PathVariable Long id,
@@ -234,14 +334,14 @@ public class UserController {
 
         }catch (Exception e){
             model.addAttribute("id",mapData.get("id"));
-            return "/user/edit";
+            return "user/edit";
         }
         model.addAttribute("data",new ObjectMapper().convertValue(mapData,ResUserDTO.class));
         model.addAttribute("id",id);
-        return "/user/edit";
+        return "user/edit";
     }
 
-    @PostMapping("/{id}")
+    @PostMapping("{id}")
     public String update(
             @ModelAttribute("data") @Valid ValUserDTO valUserDTO,
             BindingResult bindingResult,
@@ -252,7 +352,7 @@ public class UserController {
         if(bindingResult.hasErrors()){
             model.addAttribute("data",valUserDTO);
             model.addAttribute("id",id);
-            return "/user/edit";
+            return "user/edit";
         }
 
         ResponseEntity<Object> response = null;
@@ -266,12 +366,12 @@ public class UserController {
         }catch (Exception e){
             model.addAttribute("data",valUserDTO);
             model.addAttribute("id",id);
-            return "/user/edit";
+            return "user/edit";
         }
-        return "form-success";
+        return "status-200";
     }
 
-    @PostMapping("/d/{id}")
+    @PostMapping("d/{id}")
     public String delete(
             Model model,
             @PathVariable Long id,
@@ -287,12 +387,12 @@ public class UserController {
 //            int z = 1/0;
             response = userService.delete(jwt,id);
         }catch (Exception e){
-            return "/form-error";
+            return "error-400";
         }
-        return "/form-success";
+        return "status-200";
     }
 
-    @PostMapping("/files/upload/{username}")
+    @PostMapping("files/upload/{username}")
     public String uploadImage(
             Model model,
             @PathVariable String username,
@@ -314,6 +414,6 @@ public class UserController {
         request.setAttribute("URL_IMG", urlImg, 1);
         GlobalFunction.setGlobalAttribute(model,request,"HOME");
         model.addAttribute("URL_IMG",urlImg);
-        return "/auth/home";
+        return "auth/home";
     }
 }

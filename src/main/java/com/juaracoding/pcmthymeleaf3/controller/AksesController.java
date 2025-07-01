@@ -62,10 +62,10 @@ public class AksesController {
         }catch (Exception e){
             return "redirect:/3314&5";
         }
-        return "/main";
+        return "main";
     }
 
-    @GetMapping("/err/{err}")
+    @GetMapping("err/{err}")
     public String defaultPageError(Model model,
                                    @PathVariable String err,
                                    WebRequest request){
@@ -82,16 +82,19 @@ public class AksesController {
             GlobalFunction.setPagingElement(model,mapData,"akses",filterColumn);
             GlobalFunction.setGlobalAttribute(model,request,"Akses");
         }catch (Exception e){
-            return "redirect:/3314&5";
+            return GlobalFunction.errorHandleMainPage(e.getMessage(),"akses");
         }
-        if(err.equals("500")){
-            err = "Internal Server Error (500)";
+        switch (err){
+            case "400":err="DATA TIDAK DITEMUKAN (400)";break;
+            case "error-pdf":err="GAGAL MENGUNDUH FILE PDF (500)";break;
+            case "error-xlsx":err="GAGAL MENGUNDUH FILE EXCEL (500)";break;
+            default:err="INTERNAL SERVER ERROR";break;
         }
-        model.addAttribute("errorInternalServer",err);
-        return "/main";
+        model.addAttribute("globalError",err);
+        return "main";
     }
 
-    @GetMapping("/{sort}/{sortBy}/{page}")
+    @GetMapping("{sort}/{sortBy}/{page}")
     public String findByParam(
             Model model,
             @PathVariable String sort,
@@ -114,13 +117,13 @@ public class AksesController {
             GlobalFunction.setPagingElement(model,mapData,"akses",filterColumn);
             GlobalFunction.setGlobalAttribute(model,request,"AKSES");
         }catch (Exception e){
-            return "redirect:/3314&5";
+            return GlobalFunction.errorHandleMainPage(e.getMessage(),"akses");
         }
-        return "/main";
+        return "main";
     }
 
-    @GetMapping("/excel")
-    public ResponseEntity<Object> downloadExcel(
+    @GetMapping("excel")
+    public Object downloadExcel(
             Model model,
             @RequestParam(value = "column") String column,
             @RequestParam(value = "value") String value,
@@ -131,7 +134,7 @@ public class AksesController {
         String fileName = "";
         String jwt = GlobalFunction.tokenCheck(model, request);
         if(jwt.equals("redirect:/774$_3")){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resource);
+            return "redirect:/774$_3";
         }
         try{
             response = aksesService.downloadExcel(jwt,column,value);
@@ -139,6 +142,7 @@ public class AksesController {
             InputStream inputStream = response.body().asInputStream();
             resource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
         }catch (Exception e){
+            return GlobalFunction.errorHandleFile(e.getMessage(),"akses","xlsx");
         }
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Disposition",fileName.substring(0,fileName.length()-1));
@@ -147,8 +151,8 @@ public class AksesController {
                 body(resource);
     }
 
-    @GetMapping("/pdf")
-    public ResponseEntity<Object> downloadPdf(
+    @GetMapping("pdf")
+    public Object downloadPdf(
             Model model,
             @RequestParam(value = "column") String column,
             @RequestParam(value = "value") String value,
@@ -159,7 +163,7 @@ public class AksesController {
         String fileName = "";
         String jwt = GlobalFunction.tokenCheck(model, request);
         if(jwt.equals("redirect:/774$_3")){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resource);
+            return "redirect:/774$_3";
         }
         try{
             response = aksesService.downloadPdf(jwt,column,value);
@@ -175,7 +179,7 @@ public class AksesController {
                 body(resource);
     }
 
-    @GetMapping("/a")
+    @GetMapping("a")
     public String openModalsAdd(
             Model model,
             WebRequest request){
@@ -192,7 +196,7 @@ public class AksesController {
         }
         model.addAttribute("data",new ResAksesDTO());
         model.addAttribute("x",listDataMenu);
-        return "/akses/add";
+        return "akses/add";
     }
 
     @PostMapping("")
@@ -210,20 +214,18 @@ public class AksesController {
         if(bindingResult.hasErrors()){
             model.addAttribute("data",selectAksesDTO);
             model.addAttribute("x",getListMenu(menuService,jwt));
-            return "/akses/add";
+            return "akses/add";
         }
         ValAksesDTO valAksesDTO = mapToValAksesDTO(selectAksesDTO);
         try{
             response = aksesService.save(jwt,valAksesDTO);
         }catch (Exception e){
-            model.addAttribute("data",selectAksesDTO);
-            model.addAttribute("x",getListMenu(menuService,jwt));
-            return "/akses/add";
+            return GlobalFunction.errorHandleModals(e.getMessage());
         }
-        return "form-success";
+        return "status-200";
     }
 
-    @GetMapping("/e/{id}")
+    @GetMapping("e/{id}")
     public String openModalsEdit(
             Model model,
             @PathVariable Long id,
@@ -238,7 +240,7 @@ public class AksesController {
             mapProcessing = getDataEdit(menuService,aksesService,jwt,id);
         }catch (Exception e){
             model.addAttribute("id",id);
-            return "/akses/edit";
+            return "akses/edit";
         }
 
         model.addAttribute("data",mapProcessing.get("data"));
@@ -246,12 +248,12 @@ public class AksesController {
         model.addAttribute("menuSelected", mapProcessing.get("menuSelected"));
         model.addAttribute("listMenu", mapProcessing.get("listAllMenu"));
 
-        return "/akses/edit";
+        return "akses/edit";
     }
 
 
 
-    @PostMapping("/{id}")
+    @PostMapping("{id}")
     public String update(
             @ModelAttribute("data") @Valid SelectAksesDTO selectAksesDTO,
             BindingResult bindingResult,
@@ -263,7 +265,7 @@ public class AksesController {
         ResponseEntity<Object> response = null;
         String jwt = GlobalFunction.tokenCheck(model, request);
         if(jwt.equals("redirect:/774$_3")){
-            return jwt;
+            return "error-401";
         }
 
         if(bindingResult.hasErrors()){
@@ -272,23 +274,18 @@ public class AksesController {
             model.addAttribute("id",id);
             model.addAttribute("menuSelected", mapProcessing.get("menuSelected"));
             model.addAttribute("listMenu", mapProcessing.get("listAllMenu"));
-            return "/akses/edit";
+            return "akses/edit";
         }
 
         try{
             response = aksesService.update(jwt,mapToValAksesDTO(selectAksesDTO),id);
         }catch (Exception e){
-            Map<String,Object> mapProcessing = getDataEdit(menuService,aksesService,jwt,id);
-            model.addAttribute("data",selectAksesDTO);
-            model.addAttribute("id",id);
-            model.addAttribute("menuSelected", mapProcessing.get("menuSelected"));
-            model.addAttribute("listMenu", mapProcessing.get("listAllMenu"));
-            return "/akses/edit";
+            return GlobalFunction.errorHandleModals(e.getMessage());
         }
-        return "form-success";
+        return "status-200";
     }
 
-    @PostMapping("/d/{id}")
+    @PostMapping("d/{id}")
     public String delete(
             Model model,
             @PathVariable Long id,
@@ -301,12 +298,11 @@ public class AksesController {
         }
 
         try{
-//            int z = 1/0;
             response = aksesService.delete(jwt,id);
         }catch (Exception e){
-            return "/form-error";
+            return "error-400";
         }
-        return "/form-success";
+        return "status-200";
     }
 
     private ValAksesDTO mapToValAksesDTO(SelectAksesDTO selectAksesDTO){
@@ -380,7 +376,7 @@ public class AksesController {
         return mapReturn;
     }
 
-    @GetMapping("/{idComp}/{descComp}/{sort}/{sortBy}/{page}")
+    @GetMapping("{idComp}/{descComp}/{sort}/{sortBy}/{page}")
     public String dataTable(Model model,
                             @PathVariable(value = "sort") String sort,
                             @PathVariable(value = "sortBy") String sortBy,//name
@@ -406,13 +402,13 @@ public class AksesController {
         }catch (Exception e){
             model.addAttribute("idComp", idComp);
             model.addAttribute("descComp",descComp);
-            return "/global/data-table-form";
+            return "global/data-table-form";
         }
 
         GlobalFunction.setPagingElement(model,mapData,"akses",filterColumn);
         GlobalFunction.setGlobalAttribute(model,request,"AKSES");
         model.addAttribute("idComp", idComp);
         model.addAttribute("descComp",descComp);
-        return "/global/data-table-form";
+        return "global/data-table-form";
     }
 }

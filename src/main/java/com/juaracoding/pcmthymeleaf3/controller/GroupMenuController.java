@@ -12,7 +12,6 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -54,10 +53,10 @@ public class GroupMenuController {
         }catch (Exception e){
             return "redirect:/3314&5";
         }
-        return "/main";
+        return "main";
     }
 
-    @GetMapping("/err/{err}")
+    @GetMapping("/{err}")
     public String defaultPageError(Model model,
                                    @PathVariable String err,
                                    WebRequest request){
@@ -74,16 +73,19 @@ public class GroupMenuController {
             GlobalFunction.setPagingElement(model,mapData,"group-menu",filterColumn);
             GlobalFunction.setGlobalAttribute(model,request,"GROUP MENU");
         }catch (Exception e){
-            return "redirect:/3314&5";
+            return GlobalFunction.errorHandleMainPage(e.getMessage(),"group-menu");
         }
-        if(err.equals("500")){
-            err = "Internal Server Error (500)";
+        switch (err){
+            case "400":err="DATA TIDAK DITEMUKAN (400)";break;
+            case "error-pdf":err="GAGAL MENGUNDUH FILE PDF (500)";break;
+            case "error-xlsx":err="GAGAL MENGUNDUH FILE EXCEL (500)";break;
+            default:err="INTERNAL SERVER ERROR";break;
         }
-        model.addAttribute("errorInternalServer",err);
-        return "/main";
+        model.addAttribute("globalError",err);
+        return "main";
     }
 
-    @GetMapping("/{sort}/{sortBy}/{page}")
+    @GetMapping("{sort}/{sortBy}/{page}")
     public String findByParam(
             Model model,
             @PathVariable String sort,
@@ -101,18 +103,19 @@ public class GroupMenuController {
         }
         try{
             response = groupMenuService.findByParam(jwt,sort,sortBy,page,size,column,value);
+            System.out.println("Error Nih !!");
             Map<String,Object> map = (Map<String, Object>) response.getBody();
             Map<String,Object> mapData = (Map<String, Object>) map.get("data");
             GlobalFunction.setPagingElement(model,mapData,"group-menu",filterColumn);
             GlobalFunction.setGlobalAttribute(model,request,"GROUP MENU");
         }catch (Exception e){
-            return "redirect:/3314&5";
+            return GlobalFunction.errorHandleMainPage(e.getMessage(),"group-menu");
         }
-        return "/main";
+        return "main";
     }
 
-    @GetMapping("/excel")
-    public ResponseEntity<Object> downloadExcel(
+    @GetMapping("excel")
+    public Object downloadExcel(
             Model model,
             @RequestParam(value = "column") String column,
             @RequestParam(value = "value") String value,
@@ -123,7 +126,7 @@ public class GroupMenuController {
         String fileName = "";
         String jwt = GlobalFunction.tokenCheck(model, request);
         if(jwt.equals("redirect:/774$_3")){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resource);
+            return "redirect:/774$_3";
         }
         try{
             response = groupMenuService.downloadExcel(jwt,column,value);
@@ -131,6 +134,7 @@ public class GroupMenuController {
             InputStream inputStream = response.body().asInputStream();
             resource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
         }catch (Exception e){
+            return GlobalFunction.errorHandleFile(e.getMessage(),"group-menu","xlsx");
         }
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Disposition",fileName.substring(0,fileName.length()-1));
@@ -139,8 +143,8 @@ public class GroupMenuController {
                 body(resource);
     }
 
-    @GetMapping("/pdf")
-    public ResponseEntity<Object> downloadPdf(
+    @GetMapping("pdf")
+    public Object downloadPdf(
             Model model,
             @RequestParam(value = "column") String column,
             @RequestParam(value = "value") String value,
@@ -151,7 +155,7 @@ public class GroupMenuController {
         String fileName = "";
         String jwt = GlobalFunction.tokenCheck(model, request);
         if(jwt.equals("redirect:/774$_3")){
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(resource);
+            return "redirect:/774$_3";
         }
         try{
             response = groupMenuService.downloadPdf(jwt,column,value);
@@ -159,6 +163,7 @@ public class GroupMenuController {
             InputStream inputStream = response.body().asInputStream();
             resource = new ByteArrayResource(IOUtils.toByteArray(inputStream));
         }catch (Exception e){
+            return GlobalFunction.errorHandleFile(e.getMessage(),"group-menu","pdf");
         }
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Disposition",fileName.substring(0,fileName.length()-1));
@@ -167,7 +172,7 @@ public class GroupMenuController {
                 body(resource);
     }
 
-    @GetMapping("/a")
+    @GetMapping("a")
     public String openModalsAdd(
             Model model,
             WebRequest request){
@@ -177,7 +182,8 @@ public class GroupMenuController {
             return jwt;
         }
         model.addAttribute("data",new ResGroupMenuDTO());
-        return "/group-menu/add";
+        model.addAttribute("formAdd","cobaAddGroupMenuDoank");
+        return "group-menu/add";
     }
 
     @PostMapping("")
@@ -186,28 +192,28 @@ public class GroupMenuController {
             BindingResult bindingResult,
             Model model,
             WebRequest request){
-
         if(bindingResult.hasErrors()){
             model.addAttribute("data",valGroupMenuDTO);
-            return "/group-menu/add";
+            return "group-menu/add";
         }
 
         ResponseEntity<Object> response = null;
         String jwt = GlobalFunction.tokenCheck(model, request);
         if(jwt.equals("redirect:/774$_3")){
-            return jwt;
+            return "error-401";
         }
 
         try{
             response = groupMenuService.save(jwt,valGroupMenuDTO);
         }catch (Exception e){
-            model.addAttribute("data",valGroupMenuDTO);
-            return "/group-menu/add";
+//            model.addAttribute("data",valGroupMenuDTO);
+            return GlobalFunction.errorHandleModals(e.getMessage());
+//            return "group-menu/add";
         }
-        return "form-success";
+        return "status-200";
     }
 
-    @GetMapping("/e/{id}")
+    @GetMapping("e/{id}")
     public String openModalsEdit(
             Model model,
             @PathVariable Long id,
@@ -225,15 +231,15 @@ public class GroupMenuController {
             mapData = (Map<String, Object>) map.get("data");
 
         }catch (Exception e){
-            return "/group-menu/edit";
+            return "group-menu/edit";
         }
         model.addAttribute("data",new ObjectMapper().convertValue(mapData,ResGroupMenuDTO.class));
         model.addAttribute("id",mapData.get("id"));
 
-        return "/group-menu/edit";
+        return "group-menu/edit";
     }
 
-    @PostMapping("/{id}")
+    @PostMapping("{id}")
     public String update(
             @ModelAttribute("data") @Valid ValGroupMenuDTO valGroupMenuDTO,
             BindingResult bindingResult,
@@ -244,26 +250,23 @@ public class GroupMenuController {
         if(bindingResult.hasErrors()){
             model.addAttribute("data",valGroupMenuDTO);
             model.addAttribute("id",id);
-            return "/group-menu/edit";
+            return "group-menu/edit";
         }
 
         ResponseEntity<Object> response = null;
         String jwt = GlobalFunction.tokenCheck(model, request);
         if(jwt.equals("redirect:/774$_3")){
-            return jwt;
+            return "error-401";
         }
         try{
             response = groupMenuService.update(jwt,valGroupMenuDTO,id);
         }catch (Exception e){
-            System.out.println("error : "+e.getMessage());
-            model.addAttribute("id",id);
-            model.addAttribute("data",valGroupMenuDTO);
-            return "/group-menu/edit";
+            return GlobalFunction.errorHandleModals(e.getMessage());
         }
-        return "form-success";
+        return "status-200";
     }
 
-    @PostMapping("/d/{id}")
+    @PostMapping("d/{id}")
     public String delete(
             Model model,
             @PathVariable Long id,
@@ -276,15 +279,14 @@ public class GroupMenuController {
         }
 
         try{
-//            int z = 1/0;
             response = groupMenuService.delete(jwt,id);
         }catch (Exception e){
-            return "/form-error";
+            return "error-400";
         }
-        return "/form-success";
+        return "status-200";
     }
 
-    @GetMapping("/{idComp}/{descComp}/{sort}/{sortBy}/{page}")
+    @GetMapping("{idComp}/{descComp}/{sort}/{sortBy}/{page}")
     public String dataTable(Model model,
                             @PathVariable(value = "sort") String sort,
                             @PathVariable(value = "sortBy") String sortBy,//name
@@ -310,13 +312,13 @@ public class GroupMenuController {
         }catch (Exception e){
             model.addAttribute("idComp", idComp);
             model.addAttribute("descComp",descComp);
-            return "/global/data-table-form";
+            return "global/data-table-form";
         }
 
         GlobalFunction.setPagingElement(model,mapData,"group-menu",filterColumn);
         GlobalFunction.setGlobalAttribute(model,request,"GROUP MENU");
         model.addAttribute("idComp", idComp);
         model.addAttribute("descComp",descComp);
-        return "/global/data-table-form";
+        return "global/data-table-form";
     }
 }

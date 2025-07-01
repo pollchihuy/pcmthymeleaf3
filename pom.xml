@@ -30,6 +30,7 @@
 
     <dependencies>
 
+
 <!--================================== UI ==============================-->
         <!-- https://mvnrepository.com/artifact/org.webjars/popper.js -->
         <dependency>
@@ -129,4 +130,22 @@
             <version>${project.parent.version}</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${project.parent.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <addResources>true</addResources>
+                </configuration>
+            </plugin>
+        </plugins>
+        <finalName>paul-fe</finalName>
+    </build>
 </project>

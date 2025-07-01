@@ -9,23 +9,33 @@
     <script type="text/javascript" th:src="@{/js/modals.js}"></script>
 </head>
 <body>
+<!--<div th:replace="~{/fragment/navbar::navheader}"></div>-->
 <div th:replace="~{fragment/navbar::navheader}"></div>
-<h1 style="background-color: red" th:text="${PAGE_NAME}"/>
+<!--<h1 style="background-color: red" th:text="${PAGE_NAME}"/>-->
+<div th:if="${globalError != null}" class="error-box error-danger" >
+    <p style="text-align: center;color: green;font-weight: bolder;font-size: 2.5rem" th:utext="${globalError}" />
+</div>
 <div th:replace="~{fragment/filter::filter-form}"></div>
 <div th:replace="~{fragment/report-button::btn-functional}"></div>
 <div th:replace="~{fragment/table::main-table}"></div>
 <div th:replace="~{fragment/pagination::paging}"></div>
+<!--<div th:replace="~{/fragment/filter::filter-form}"></div>-->
+<!--<div th:replace="~{/fragment/report-button::btn-functional}"></div>-->
+<!--<div th:replace="~{/fragment/table::main-table}"></div>-->
+<!--<div th:replace="~{/fragment/pagination::paging}"></div>-->
 
+<!--<th:block th:replace="~{/fragment/modals-add::modalsAdd('add1')}">modalAdd</th:block>-->
+<!--<th:block th:replace="~{/fragment/modals-edit::modalzEdit('edit1')}">modalEdit</th:block>-->
+<!--<th:block th:replace="~{/fragment/data-table/modals-data-table::modalsTable('dataTable')}">modalEdit</th:block>-->
 <th:block th:replace="~{fragment/modals-add::modalsAdd('add1')}">modalAdd</th:block>
 <th:block th:replace="~{fragment/modals-edit::modalzEdit('edit1')}">modalEdit</th:block>
 <th:block th:replace="~{fragment/data-table/modals-data-table::modalsTable('dataTable')}">modalEdit</th:block>
-<div th:if="${errorInternalServer != null}" class="error-box error-danger" >
-    <p style="text-align: center;color: green;font-weight: bolder;font-size: 2.5rem" th:utext="${errorInternalServer}" />
-</div>
 
-<script type="text/javascript" th:src="@{/webjars/popper.js/umd/popper.min.js}"></script><!--wajib ada untuk modals-->
 <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/webjars/popper.js/umd/popper.min.js}"></script><!--wajib ada untuk modals-->
 <script type="text/javascript" th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script><!--wajib ada untuk modals-->
+<script type="text/javascript" th:src="@{/js/action.js}"></script>
+<script type="text/javascript" th:src="@{/js/submitdata.js}"></script>
 
 </body>
 </html>

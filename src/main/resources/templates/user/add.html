@@ -1,34 +1,28 @@
 <form  th:action="@{/user}"
-	   th:object = "${data}" method="POST" id="addUser">
-	<input type="hidden" value="50c9a8c2b1cb45799d8f0db5f8449c65" /><!-- id form -->
-	<div th:if="${#fields.hasErrors('global')}" class="error-box error-danger" >
-		<p th:each="err : ${#fields.errors('global')}" th:text="${err}"  class="error"/>
-	</div>
-
+	   method="post" id="addUser" >
+	<input type="hidden" value="50c9a8c2b1cb45799d8f0db5f8449c65" />
 	<div class ="form-group">
-		<label  for="username"> Username </label>
+		<label  > Username </label>
 		<input
-				id="username"
 				type = "text"
 				name = "username"
-				th:field = "*{username}"
+				th:value="${username}"
 				class = "form-control"
 				placeholder="Masukkan Username"
 		/>
-		<ul>
-			<li th:each="err : ${#fields.errors('username')}" th:text="${err}" class="error" />
+		<ul   class="error-ul">
+			<li th:if="${usernameMessage!=null}" th:text="${usernameMessage}" class="error" />
 		</ul>
 	</div>
 
 	<div class ="form-group">
 		<label  for="password">Password</label>
-		<input type="password" id="password"
-			   th:field="*{password}"
+		<input type="password" id="password" name="password"
 			   class="form-control form-control-lg"
+			   th:value="${password}"
 			   placeholder="Enter password" />
-		<p id="errorPwd" class="error"/>
-		<ul class="error-ul">
-			<li th:each="err : ${#fields.errors('password')}" th:text="${err}" class="error" />
+		<ul   class="error-ul">
+			<li th:if="${passwordMessage!=null}" th:text="${passwordMessage}" class="error" />
 		</ul>
 	</div>
 
@@ -37,35 +31,34 @@
 		<input
 				id="namaLengkap"
 				type = "text"
+				th:value="${namaLengkap}"
 				name = "namaLengkap"
-				th:field = "*{namaLengkap}"
 				class = "form-control"
 				placeholder="Masukkan Nama Lengkap"
 		/>
-		<ul>
-			<li th:each="err : ${#fields.errors('namaLengkap')}" th:text="${err}" class="error" />
+		<ul   class="error-ul">
+			<li th:if="${namaLengkapMessage!=null}" th:text="${namaLengkapMessage}" class="error" />
 		</ul>
 	</div>
 
 	<div class ="form-group">
 		<label  for="noHp">No Handphone</label>
-		<input type="text" id="noHp" class="form-control form-control-lg"
-			   th:field="*{noHp}"
-			   placeholder="Masukkan No Hp" />
-		<ul class="error-ul">
-			<li th:each="err : ${#fields.errors('noHp')}" th:text="${err}" class="error" />
+		<input type="number" id="noHp" name="noHp" class="form-control form-control-lg"
+			   th:value="${noHp}" placeholder="Masukkan No Hp" />
+		<ul   class="error-ul">
+			<li th:if="${noHpMessage!=null}" th:text="${noHpMessage}" class="error" />
 		</ul>
 	</div>
 
 	<div class ="form-group">
 		<label  for="email">Email</label>
-		<input type="email" id="email" class="form-control form-control-lg"
-			   th:field="*{email}"
-			   placeholder="Enter Email" />
-		<ul class="error-ul">
-			<li th:each="err : ${#fields.errors('email')}" th:text="${err}" class="error" />
+		<input type="email" id="email" name="email" class="form-control form-control-lg"
+			   th:value="${email}" placeholder="Enter Email" />
+		<ul   class="error-ul">
+			<li th:if="${emailMessage!=null}" th:text="${emailMessage}" class="error" />
 		</ul>
 	</div>
+
 
 	<div class ="form-group">
 		<label>Akses</label>
@@ -73,12 +66,12 @@
 				type = "text"
 				id="namaAkses"
 				name = "namaAkses"
-				th:field = "*{akses.nama}"
 				class = "form-control"
 				placeholder="Pilih"
 				disabled="disabled"
 		/>
-		<input type="hidden" th:field="*{akses.id}" id="idAkses" />
+		<input type="hidden" id="idAkses" name="idAkses"
+			   th:value="${idAkses}"/>
 		<button
 				th:id="pilih-data"
 				th:onclick="funcModalsDataTableHandler('DataAkses','#dataTable','/akses/idAkses/namaAkses/asc/id/0?column=id&value=&size=5','#data-result')"
@@ -89,34 +82,36 @@
 	</div>
 
 	<div class ="form-group">
-		<label> Alamat </label>
+		<label for="alamat"> Alamat </label>
 		<textarea
 				type = "text"
+				id = "alamat"
 				name = "alamat"
-				th:field = "*{alamat}"
+				th:text="${alamat}"
 				class = "form-control"
-				placeholder="Masukkan Alamat"
-		/>
-		<ul>
-			<li th:each="err : ${#fields.errors('alamat')}" th:text="${err}" class="error" />
+				placeholder="Masukkan Alamat" />
+
+		<ul   class="error-ul">
+			<li th:if="${alamatMessage!=null}" th:text="${alamatMessage}" class="error" />
 		</ul>
 	</div>
 
-	<!-- Tanggal Lahir input -->
+
 	<div data-mdb-input-init class="form-outline mb-4">
-		<label  for="tanggalLahir">Alamat</label>
-		<input type="date" id="tanggalLahir" class="form-control form-control-lg"
-			   th:field="*{tanggalLahir}"
+		<label  for="tanggalLahir">Tanggal Lahir</label>
+		<input type="date" id="tanggalLahir" name="tanggalLahir" class="form-control form-control-lg"
 			   placeholder="Enter Birth Date" />
-		<ul class="error-ul">
-			<li th:each="err : ${#fields.errors('tanggalLahir')}" th:text="${err}" class="error" />
+		<ul   class="error-ul">
+			<li th:if="${tanggalLahirMessage!=null}" th:text="${tanggalLahirMessage}" class="error" />
 		</ul>
 	</div>
 
-<!--	<input id="input-file" type="file" name="file" />-->
+	<div>
+		<input id="file" type="file" name="file" />
+	</div>
 
 	<div class = "modal-footer">
-		<button type="submit" class = "btn btn-primary">
+		<button type="submit" class = "btn btn-primary" id="btnSubm">
 			Submit
 		</button>
 		<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -129,12 +124,18 @@
           event.preventDefault(); //prevent default action
           let post_url = $(this).attr("action"); //get form action url
           let request_method = $(this).attr("method"); //get form GET/POST method
-          let form_data = $(this).serialize(); //Encode form elements for submission
-          $.ajax({
+          let form_data = new FormData(this);
+		$("#btnSubm").prop("disabled", true);
+
+		$.ajax({
               url: post_url,
               type: request_method,
-              data: form_data
-            }).done(function(response) { //
+              data: form_data,
+			  enctype: 'multipart/form-data',
+			  contentType: false,
+			  processData: false,
+		  })
+			.done(function(response) { //
             let pattern = /50c9a8c2b1cb45799d8f0db5f8449c65/i;
 			let result = response.match(pattern);
             if(result)

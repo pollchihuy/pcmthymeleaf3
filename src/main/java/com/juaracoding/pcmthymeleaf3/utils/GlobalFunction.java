@@ -17,6 +17,42 @@ import java.util.regex.Pattern;
 
 public class GlobalFunction {
 
+    public static String errorHandleMainPage(String httpStatus, String form){
+        String page = "";
+        switch (httpStatus){
+            case "400":page="redirect:/"+form+"/400";break;
+            case "401":page="redirect:/774$_3";break;
+            case "403":page="redirect:/43$x_y";break;
+            default:page="redirect:/3314&5";break;
+        }
+        return page;
+    }
+
+    public static String errorHandleModals(String httpStatus){
+        String page = "";
+        switch (httpStatus){
+            case "400":page="error-400";break;
+            case "401":page="error-401";break;
+            case "403":page="error-403";break;
+            default:page="error-500";break;
+        }
+        return page;
+    }
+    public static String errorHandleFile(String httpStatus,String form,String fileType){
+        String page = "";
+
+        switch (httpStatus){
+            case "500":page="redirect:/3314&5";break;
+            case "401":page="redirect:/774$_3";break;
+            case "403":page="redirect:/43$x_y";break;
+            default:page="default";break;
+        }
+        if(page.equals("default")){
+            page="redirect:/"+form+"/error-"+fileType;
+        }
+        return page;
+    }
+
     public static void getCaptchaLogin(LoginDTO loginDTO){
         Captcha captcha = CaptchaUtils.createCaptcha(275,70);
         String answer = captcha.getAnswer();

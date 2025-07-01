@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.6.2/css/bootstrap.min.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/error.css}" type="text/css"/>
     <link rel="stylesheet" th:href="@{/css/error.css}" type="text/css"/>
     <title>LOGIN</title>
 </head>
@@ -17,18 +18,13 @@
             </div>
 
             <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
-                <div th:if="${regisSuccess != null}" class="error-box error-danger" >
-                    <p style="text-align: center;color: green;font-weight: bolder;font-size: 2.5rem" th:utext="${regisSuccess}" />
-                </div>
-                <div th:if="${authProblem != null}" class="error-box error-danger" >
-                    <p style="text-align: center;color: green;font-weight: bolder;font-size: 2.5rem" th:utext="${authProblem}" />
-                </div>
-                <div th:if="${internalError != null}" class="error-box error-danger" >
-                    <p style="text-align: center;color: green;font-weight: bolder;font-size: 2.5rem" th:utext="${internalError}" />
+                <div th:if="${notif != null}" class="error-box error-danger" >
+                    <p style="text-align: center;color: green;font-weight: bolder;font-size: 2.5rem" th:utext="${notif}" />
                 </div>
 
                 <form id="form-loginz"
                     th:object="${usr}" method="post" th:action="@{/auth/login}">
+                    <input type="hidden" value="My Login Page">
                     <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
                         <h1 class="lead fw-normal mb-0 me-3">Sign in</h1>
                     </div>
@@ -93,7 +89,7 @@
 <!--                    End Of Captcha-->
 
                     <div class="text-center text-lg-start mt-4 pt-2">
-                        <button  id="btn-login" type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg"
+                        <button  id="btn-login" type="submit" data-mdb-button-init data-mdb-ripple-init class="btn btn-primary btn-lg"
                                  style="padding-left: 2.5rem; padding-right: 2.5rem;">Login</button>
                         <p class="small fw-bold mt-2 pt-1 mb-0">Don't have an account? <a th:href="@{/regis}"
                                                                                           class="link-danger">Register</a></p>
@@ -112,30 +108,9 @@
         <!-- Copyright -->
     </div>
 </section>
+<!--<th:block th:replace="~{fragment/progress::progress-bar}">loading</th:block>-->
 <script type="text/javascript" th:src="@{/webjars/jquery/jquery.min.js}"></script>
-<script>
-    $(document).ready(function (){
-            $('#btn-login').on('click',function (e) {
-                    e.preventDefault();
-                    var pwd = $('#password').val();// Paul@1234
-                    // var pwdEncrypt = btoa(pwd);// 0ija0sijer09u
-                    var regex =/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[@_#\-$])[\w].{8,15}$/;
-                    var isOk = true;
+<script type="text/javascript" th:src="@{/js/login.js}"></script>
 
-                    if(!regex.test(pwd)){
-                        isOk=false;
-                        document.getElementById("errorPwd").innerHTML = "Password nya error !!";
-                    }
-
-                    if(isOk){
-                        var pwdEncrypt = btoa(pwd);
-                        $("#password").val(pwdEncrypt);
-                        $("#form-loginz").submit();
-                    }
-                }
-            )
-        }
-    )
-</script>
 </body>
 </html>
